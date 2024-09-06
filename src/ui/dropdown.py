@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, Literal
 
-from pytempl import html_class_merge
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import H3, Div, Li, Ul
 
 from .button import Button
@@ -63,7 +63,7 @@ class DropdownMenuContent(Ul):
             x_show="isOpened || openedWithKeyboard",
             x_trap="openedWithKeyboard",
             role="menu",
-            _class=html_class_merge(
+            _class=tw_merge(
                 class_attribute,
                 f"{class_attribute} {base_class_attribute} {popover_side_class_attribute.value}",
             ),
@@ -84,7 +84,7 @@ class DropdownMenuLabel(H3):
         inset_class_attribute = "pl-8" if inset else ""
 
         super().__init__(
-            _class=html_class_merge(
+            _class=tw_merge(
                 class_attribute, f"{base_class_attribute} {inset_class_attribute}"
             ),
             **attributes,
@@ -101,7 +101,7 @@ class DropdownMenuItem(Li):
         disabled_class_attribute = "pointer-events-none opacity-50" if disabled else ""
 
         super().__init__(
-            _class=html_class_merge(
+            _class=tw_merge(
                 class_attribute,
                 f"{base_class_attribute} {inset_class_attribute} {disabled_class_attribute}",
             ),
@@ -118,7 +118,7 @@ class DropdownMenuSeparator(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             role="separator",
             aria_orientation="horizontal",
             **attributes,

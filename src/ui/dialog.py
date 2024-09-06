@@ -1,6 +1,6 @@
 from typing import Any, Dict, Generator, Iterable, Literal, Self, Tuple
 
-from pytempl import BaseWebElement, html_class_merge
+from pytempl import BaseWebElement, tw_merge
 from pytempl.tags import H3, Div, Span
 from pytempl.tags import Button as PyButton
 from pytempl_icons import CrossIcon
@@ -50,7 +50,7 @@ class DialogOverlay(Div):
 
         super().__init__(
             x_show="modalIsOpen",
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             **{
                 "x-transition.opacity.duration.100ms": True,
                 ":class": "modalIsOpen ? 'animate-in fade-in-0' : 'animate-out fade-out-0'",
@@ -97,7 +97,7 @@ class DialogContent(Div):
             [
                 DialogOverlay()(),
                 Div(
-                    _class=html_class_merge(
+                    _class=tw_merge(
                         self.forwarded_class_attribute,
                         self.forwarded_base_class_attribute,
                     ),
@@ -120,7 +120,7 @@ class DialogHeader(H3):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
 
@@ -132,7 +132,7 @@ class DialogFooter(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
     def __call__(self, *children: Tuple) -> Self:
@@ -164,7 +164,7 @@ class DialogTitle(H3):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
 
@@ -174,5 +174,5 @@ class DialogBody(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )

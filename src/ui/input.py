@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from pytempl import html_class_merge
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import Div
 from pytempl.tags import Input as PyInput
 from pytempl_icons import EyeIcon, EyeOffIcon
@@ -19,7 +19,7 @@ class Input(PyInput):
 
         super().__init__(
             type=type,
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             **attributes,
         )
 

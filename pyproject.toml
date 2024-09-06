@@ -15,8 +15,8 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pytempl = "^0"
-pytempl-icon = "^0"
+pytempl = { git = "https://github.com/pytempl/pytempl.git", branch = "main" }
+pytempl-icons = { git = "https://github.com/pytempl/pytempl-icons.git", branch = "main" }
 
 [tool.poetry.group.dev.dependencies]
 rich = "^13.7"

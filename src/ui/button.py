@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, Literal
 
-from pytempl import html_class_merge
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import Button as PyButton
 
 
@@ -38,7 +38,7 @@ class Button(PyButton):
         size_class_attribute = ButtonSize[size]
 
         super().__init__(
-            _class=html_class_merge(
+            _class=tw_merge(
                 class_attribute,
                 f"{variant_class_attribute.value} {size_class_attribute.value} {base_class_attribute}",
             ),

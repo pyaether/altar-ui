@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from pytempl import html_class_merge
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import Div, Input
 from pytempl_icons import CheckIcon
 
@@ -28,7 +28,7 @@ class Checkbox(Div):
                 type="checkbox",
                 x_model=id,
                 value=value,
-                _class=html_class_merge(
+                _class=tw_merge(
                     forwarded_class_attribute, forwarded_base_class_attribute
                 ),
                 **forwarded_attributes,

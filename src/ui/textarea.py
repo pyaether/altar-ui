@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from pytempl import html_class_merge
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import Textarea as PyTextarea
 
 
@@ -10,5 +10,5 @@ class Textarea(PyTextarea):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )

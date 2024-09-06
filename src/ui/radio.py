@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from pytempl import html_class_merge
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import Div, Input
 from pytempl_icons import DotFilledIcon
 
@@ -11,7 +11,7 @@ class RadioGroup(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             x_data=f"{{ selectedRadioItem: '{default_value}' }}",
             **attributes,
         )
@@ -40,7 +40,7 @@ class RadioGroupItem(Div):
                 value=value,
                 name=name if name else "radio_group",
                 x_model="selectedRadioItem",
-                _class=html_class_merge(
+                _class=tw_merge(
                     forwarded_class_attribute, forwarded_base_class_attribute
                 ),
                 **forwarded_attributes,

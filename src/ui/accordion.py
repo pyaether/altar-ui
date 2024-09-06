@@ -1,6 +1,6 @@
 from typing import Any, Dict, Generator, Iterable, Self, Tuple
 
-from pytempl import BaseWebElement, html_class_merge
+from pytempl import BaseWebElement, tw_merge
 from pytempl.tags import H3, Button, Div
 from pytempl_icons import ChevronDownIcon
 
@@ -14,7 +14,7 @@ class AccordionItem(Div):
         base_class_attribute = "border-b"
         class_attribute = attributes.pop("_class", "")
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             x_data="{ isExpanded: false }",
             **attributes,
         )
@@ -46,7 +46,7 @@ class AccordionTrigger(H3):
 
         self.children.append(
             Button(
-                _class=html_class_merge(
+                _class=tw_merge(
                     self.forwarded_class_attribute, self.forwarded_base_class_attribute
                 ),
                 id=f"accordion-trigger-{self.value.lower().replace(' ', '-')}",
@@ -98,7 +98,7 @@ class AccordionContent(Div):
 
         self.children.append(
             Div(
-                _class=html_class_merge(
+                _class=tw_merge(
                     self.forwarded_class_attribute, self.forwarded_base_class_attribute
                 )
             )(*forwarded_children)

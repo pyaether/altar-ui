@@ -1,6 +1,6 @@
 from typing import Any, Dict, Mapping, Sequence
 
-from pytempl import html_class_merge
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import Div, P
 from pytempl.tags import Form as PyForm
 
@@ -74,7 +74,7 @@ class FormItem(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             x_data="{ formItemId: $id('form-item'), formDescriptionId: $id('form-item-description'), formMessageId: $id('form-item-message'), error: '' }",
             **attributes,
         )
@@ -109,7 +109,7 @@ class FormDescription(P):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             **{":id": "`${formDescriptionId}`"},
             **attributes,
         )
@@ -123,7 +123,7 @@ class FormMessage(P):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             x_init=f"error = {str(is_errored).lower()}",
             x_show="error",
             **{":id": "`${formMessageId}`"},

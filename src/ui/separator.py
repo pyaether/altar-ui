@@ -1,6 +1,6 @@
 from typing import Any, Dict, Literal
 
-from pytempl import html_class_merge
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import Div
 
 
@@ -20,7 +20,7 @@ class Separator(Div):
         )
 
         super().__init__(
-            _class=html_class_merge(
+            _class=tw_merge(
                 class_attribute, f"{base_class_attribute} {orientation_class_attribute}"
             ),
             role="separator" if decorative else "none",

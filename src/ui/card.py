@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from pytempl import html_class_merge
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import H3, Div, P
 
 
@@ -10,7 +10,7 @@ class Card(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
 
@@ -20,7 +20,7 @@ class CardHeader(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
 
@@ -30,7 +30,7 @@ class CardContent(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
 
@@ -40,7 +40,7 @@ class CardTitle(H3):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
 
@@ -50,7 +50,7 @@ class CardDescription(P):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
 
@@ -60,5 +60,5 @@ class CardFooter(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )

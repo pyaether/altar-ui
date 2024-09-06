@@ -1,7 +1,7 @@
 import warnings
 from typing import Any, Dict, Generator, Iterable, Self, Tuple
 
-from pytempl import BaseWebElement, html_class_merge
+from pytempl import BaseWebElement, tw_merge
 from pytempl.tags import Button, Div
 
 
@@ -19,7 +19,7 @@ class TabsList(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             role="tablist",
             aria_label="tab options",
             **{
@@ -62,7 +62,7 @@ class TabsTrigger(Button):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             value=value,
             type="button",
             role="tab",
@@ -83,7 +83,7 @@ class TabsContent(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             x_show=f"selectedTab === '{value}'",
             id=f"tabpanel_{value}",
             role="tabpanel",

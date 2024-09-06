@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, Generator, Iterable, Literal, Self, Tuple
 
-from pytempl import BaseWebElement, html_class_merge
+from pytempl import BaseWebElement, tw_merge
 from pytempl.tags import H5, Div, P
 
 
@@ -21,7 +21,7 @@ class Alert(Div):
         variant_class_attribute = AlertVariant[variant]
 
         super().__init__(
-            _class=html_class_merge(
+            _class=tw_merge(
                 class_attribute,
                 f"{variant_class_attribute.value} {base_class_attribute}",
             ),
@@ -36,7 +36,7 @@ class AlertTitle(H5):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
 
@@ -46,7 +46,7 @@ class AlertDescription(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
     def __call__(self, *children: Tuple) -> Self:

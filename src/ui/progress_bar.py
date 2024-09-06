@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from pytempl import html_class_merge
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import Div
 
 
@@ -18,7 +18,7 @@ class ProgressBar(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             x_data=f"{{ currentValue: {current_value if current_value else min_value}, minValue: {min_value}, maxValue: {max_value}, calcPercentage(min, max, val){{return ((val-min)/(max-min))*100}} }}",
             role="progressbar",
             aria_label="Progress Bar",

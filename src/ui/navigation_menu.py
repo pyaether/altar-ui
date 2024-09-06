@@ -1,7 +1,7 @@
 import warnings
 from typing import Any, Dict, Generator, Iterable, Self, Tuple
 
-from pytempl import BaseWebElement, html_class_merge
+from pytempl import BaseWebElement, tw_merge
 from pytempl.tags import A, Li, Nav, Ul
 
 
@@ -12,14 +12,14 @@ class NavigationMenu(Nav):
 
         if enable_mobile_view:
             super().__init__(
-                _class=html_class_merge(class_attribute, base_class_attribute),
+                _class=tw_merge(class_attribute, base_class_attribute),
                 x_data="{ mobileMenuIsOpen: false }",
                 **{"@click.away": "mobileMenuIsOpen = false"},
                 **attributes,
             )
         else:
             super().__init__(
-                _class=html_class_merge(class_attribute, base_class_attribute),
+                _class=tw_merge(class_attribute, base_class_attribute),
                 **attributes,
             )
 
@@ -32,7 +32,7 @@ class NavigationMenuList(Ul):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=html_class_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(class_attribute, base_class_attribute),
             x_data=f"{{ selectedNavItem: '{selected_value}' }}",
             **attributes,
         )
@@ -75,7 +75,7 @@ class NavigationMenuItem(Li):
         disabled_class_attribute = "pointer-events-none opacity-50" if disabled else ""
 
         super().__init__(
-            _class=html_class_merge(
+            _class=tw_merge(
                 class_attribute, f"{base_class_attribute} {disabled_class_attribute}"
             ),
             value=value,
