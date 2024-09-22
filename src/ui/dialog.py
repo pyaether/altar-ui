@@ -1,6 +1,7 @@
 from typing import Any, Dict, Generator, Iterable, Literal, Self, Tuple
 
-from pytempl import BaseWebElement, tw_merge
+from pytempl import BaseWebElement
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import H3, Div, Span
 from pytempl.tags import Button as PyButton
 from pytempl_icons import CrossIcon

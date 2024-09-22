@@ -1,7 +1,8 @@
 from enum import Enum
 from typing import Any, Dict, Generator, Iterable, Literal, Self, Tuple
 
-from pytempl import BaseWebElement, tw_merge
+from pytempl import BaseWebElement
+from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags import H5, Div, P
 
 
