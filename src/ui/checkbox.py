@@ -18,10 +18,7 @@ class Checkbox(Div):
         forwarded_class_attribute = attributes.pop("_class", "")
         forwarded_attributes = attributes
 
-        super().__init__(
-            id=id,
-            _class=class_attribute,
-        )
+        super().__init__(id=id, _class=class_attribute)
 
         self.children = [
             Input(
