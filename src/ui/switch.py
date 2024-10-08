@@ -8,7 +8,7 @@ class Switch(Div):
     def __init__(
         self,
         id: str,
-        checked: bool,
+        checked: bool = False,
         disabled: bool = False,
         **attributes: Dict[str, Any],
     ):
