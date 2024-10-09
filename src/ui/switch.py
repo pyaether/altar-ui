@@ -8,7 +8,8 @@ class Switch(Div):
     def __init__(
         self,
         id: str,
-        checked: bool = False,
+        name: str = "",
+        default_value: bool = False,
         disabled: bool = False,
         **attributes: Dict[str, Any],
     ):
@@ -20,10 +21,17 @@ class Switch(Div):
 
         super().__init__(
             _class=class_attribute,
-            x_data=f"{{ checked: {str(checked).lower()} }}",
+            x_data=f"{{ checked: {str(default_value).lower()} }}",
         )
 
         self.children = [
+            Input(
+                type="hidden",
+                id=id,
+                name=name if name else "toggle_switch",
+                **{":value": "checked"},
+                disabled=disabled,
+            ),
             Button(
                 type="button",
                 disabled=disabled,
@@ -41,12 +49,5 @@ class Switch(Div):
                     **{":class": "checked ? 'translate-x-4' : 'translate-x-0'"},
                     aria_hidden=True,
                 )()
-            ),
-            Input(
-                id=id,
-                _class="sr-only",
-                type="checkbox",
-                x_model="checked",
-                disabled=disabled,
             ),
         ]
