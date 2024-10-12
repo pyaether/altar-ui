@@ -77,7 +77,7 @@ class CarouselItem(Div):
 
         super().__init__(
             _class=tw_merge(class_attribute, base_class_attribute),
-            x_show=f"currentSlideIndex == {slide_index}",
+            x_show=f"currentSlideIndex === {slide_index}",
             **{":class": "carouselOrientation === 'horizontal' ? 'pl-4' : 'pt-4'"},
             role="group",
             aria_roledescription="slide",
@@ -96,7 +96,7 @@ class CarouselPrevious(Button):
             _class=tw_merge(class_attribute, base_class_attribute),
             **{
                 ":class": "carouselOrientation === 'horizontal' ? '-left-12 top-1/2 -translate-y-1/2' : '-top-12 left-1/2 -translate-x-1/2 rotate-90'",
-                ":click": "previousSlide()",
+                "@click": "previousSlide()",
                 ":disabled": "currentSlideIndex === 1",
             },
             aria_label="previous slide",
@@ -120,7 +120,7 @@ class CarouselNext(Button):
             _class=tw_merge(class_attribute, base_class_attribute),
             **{
                 ":class": "carouselOrientation === 'horizontal' ? '-right-12 top-1/2 -translate-y-1/2' : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90'",
-                ":click": "nextSlide()",
+                "@click": "nextSlide()",
                 ":disabled": "currentSlideIndex === slideLength",
             },
             aria_label="next slide",
