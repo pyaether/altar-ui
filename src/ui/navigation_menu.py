@@ -8,7 +8,7 @@ from pytempl.tags import A, Li, Nav, Ul
 
 class NavigationMenu(Nav):
     def __init__(self, enable_mobile_view: bool = False, **attributes: Dict[str, Any]):
-        base_class_attribute = "relative z-10 flex max-w-max flex-1 items-center"
+        base_class_attribute = "relative z-10 flex flex-1 items-center"
         class_attribute = attributes.pop("_class", "")
 
         if enable_mobile_view:
@@ -27,9 +27,7 @@ class NavigationMenu(Nav):
 
 class NavigationMenuList(Ul):
     def __init__(self, selected_value: str, **attributes: Dict[str, Any]):
-        base_class_attribute = (
-            "group flex flex-1 list-none items-center justify-center space-x-1"
-        )
+        base_class_attribute = "group flex flex-1 list-none items-center space-x-1"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
