@@ -50,7 +50,7 @@ class PasswordInput(Div):
                     size="icon",
                     variant="ghost",
                     _class="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-md text-muted-foreground",
-                    **{"@click": "showPassword = ! showPassword"},
+                    **{"@click": "showPassword = !showPassword"},
                 )(
                     EyeOffIcon(x_show="!showPassword", _class="h-4 w-4"),
                     EyeIcon(x_show="showPassword", _class="h-4 w-4"),
