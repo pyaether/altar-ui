@@ -1,53 +1,39 @@
 from typing import Any, Dict
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Button, Div, Input, Span
+from pytempl.tags import Div, Input
+from pytempl_icons import CheckIcon
 
 
-class Switch(Div):
+class Checkbox(Div):
     def __init__(
         self,
         id: str,
-        name: str = "",
-        default_value: bool = False,
-        disabled: bool = False,
+        value: str,
         **attributes: Dict[str, Any],
     ):
         class_attribute = "relative flex items-center"
 
-        forwarded_base_class_attribute = "cursor-pointer h-5 w-9 shrink-0 rounded-full border-2 border-transparent shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50"
+        forwarded_base_class_attribute = "peer cursor-pointer appearance-none h-4 w-4 shrink-0 rounded-sm border border-primary shadow focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 checked:bg-primary"
         forwarded_class_attribute = attributes.pop("_class", "")
         forwarded_attributes = attributes
 
         super().__init__(
+            id=id,
             _class=class_attribute,
-            x_data=f"{{ checked: {str(default_value).lower()} }}",
         )
 
         self.children = [
             Input(
-                type="hidden",
-                id=id,
-                name=name if name else "toggle_switch",
-                **{":value": "checked"},
-                disabled=disabled,
-            ),
-            Button(
-                type="button",
-                disabled=disabled,
+                type="checkbox",
+                x_model=id,
+                value=value,
                 _class=tw_merge(
                     forwarded_class_attribute, forwarded_base_class_attribute
                 ),
-                **{
-                    "@click": "checked =! checked",
-                    ":class": "checked ? 'bg-primary' : 'bg-input'",
-                },
                 **forwarded_attributes,
-            )(
-                Span(
-                    _class="pointer-events-none h-4 w-4 block rounded-full bg-background shadow-lg ring-0 transition-transform",
-                    **{":class": "checked ? 'translate-x-4' : 'translate-x-0'"},
-                    aria_hidden=True,
-                )()
+            ),
+            CheckIcon(
+                _class="pointer-events-none invisible absolute inset-0 peer-checked:text-primary-foreground peer-checked:visible h-4 w-4",
             ),
         ]
