@@ -1,9 +1,14 @@
 from enum import Enum
-from typing import Any, Dict, Generator, Iterable, Literal, Self, Tuple
+from typing import Generator, Iterable, Literal, Self, Tuple
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags.html import H5, Div, P
+from pytempl.tags.html import H5, Div, DivAttributes, HAttributes, P
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class AlertVariant(Enum):
@@ -15,7 +20,7 @@ class Alert(Div):
     def __init__(
         self,
         variant: Literal["default", "destructive"] = "default",
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[DivAttributes],
     ):
         base_class_attribute = "relative w-full rounded-lg border px-4 py-3 text-sm [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7"
         class_attribute = attributes.pop("_class", "")
@@ -32,7 +37,7 @@ class Alert(Div):
 
 
 class AlertTitle(H5):
-    def __init__(self, **attributes):
+    def __init__(self, **attributes: Unpack[HAttributes]):
         base_class_attribute = "mb-1 font-medium leading-none tracking-tight"
         class_attribute = attributes.pop("_class", "")
 
@@ -42,7 +47,7 @@ class AlertTitle(H5):
 
 
 class AlertDescription(Div):
-    def __init__(self, **attributes):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         base_class_attribute = "text-sm [&_p]:leading-relaxed [&_ol]:ml-4 [&_ul]:ml-4"
         class_attribute = attributes.pop("_class", "")
 

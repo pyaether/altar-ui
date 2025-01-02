@@ -1,7 +1,12 @@
-from typing import Any, Dict, Literal
+from typing import Literal
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags.html import Div
+from pytempl.tags.html import Div, DivAttributes
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class Separator(Div):
@@ -11,7 +16,7 @@ class Separator(Div):
         self,
         orientation: Literal["horizontal", "vertical"] = "horizontal",
         decorative: bool = True,
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[DivAttributes],
     ):
         base_class_attribute = "shrink-0 bg-border"
         class_attribute = attributes.pop("_class", "")

@@ -1,18 +1,29 @@
-from typing import Any, Dict
-
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags.html import Li, Nav, Span, Ul
+from pytempl.tags.html import (
+    ButtonAttributes as PyButtonAttributes,
+)
+from pytempl.tags.html import (
+    Li,
+    LiAttributes,
+    Nav,
+    NavAttributes,
+    Span,
+    SpanAttributes,
+    Ul,
+    UlAttributes,
+)
 from pytempl_icons import ChevronLeftIcon, ChevronRightIcon, EllipsisIcon
 
 from .button import Button, ButtonVariant
 
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
+
 
 class Pagination(Nav):
-    def __init__(
-        self,
-        number_of_pages: int,
-        **attributes: Dict[str, Any],
-    ):
+    def __init__(self, number_of_pages: int, **attributes: Unpack[NavAttributes]):
         base_class_attribute = "flex w-full mx-auto"
         class_attribute = attributes.pop("_class", "")
 
@@ -26,7 +37,7 @@ class Pagination(Nav):
 
 
 class PaginationContent(Ul):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[UlAttributes]):
         base_class_attribute = "flex flex-row items-center gap-1"
         class_attribute = attributes.pop("_class", "")
 
@@ -37,7 +48,7 @@ class PaginationContent(Ul):
 
 
 class PaginationItem(Li):
-    def __init__(self, item_index: int | None, **attributes: Dict[str, Any]):
+    def __init__(self, item_index: int | None, **attributes: Unpack[LiAttributes]):
         base_class_attribute = ""
         class_attribute = attributes.pop("_class", "")
 
@@ -57,7 +68,7 @@ class PaginationItem(Li):
 
 
 class PaginationLink(Button):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[PyButtonAttributes]):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -74,7 +85,7 @@ class PaginationLink(Button):
 
 
 class PaginationPrevious(Button):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[PyButtonAttributes]):
         base_class_attribute = "gap-1 pl-2.5"
         class_attribute = attributes.pop("_class", "")
 
@@ -97,7 +108,7 @@ class PaginationPrevious(Button):
 
 
 class PaginationNext(Button):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[PyButtonAttributes]):
         base_class_attribute = "gap-1 pr-2.5"
         class_attribute = attributes.pop("_class", "")
 
@@ -117,7 +128,7 @@ class PaginationNext(Button):
 
 
 class PaginationEllipsis(Span):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[SpanAttributes]):
         base_class_attribute = "flex h-9 w-9 items-center justify-center"
         class_attribute = attributes.pop("_class", "")
 

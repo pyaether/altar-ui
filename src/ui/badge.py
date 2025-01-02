@@ -1,8 +1,13 @@
 from enum import Enum
-from typing import Any, Dict, Literal
+from typing import Literal
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags.html import Div
+from pytempl.tags.html import Div, DivAttributes
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class BadgeVariant(Enum):
@@ -16,7 +21,7 @@ class Badge(Div):
     def __init__(
         self,
         variant: Literal["default", "destructive", "outline", "secondary"] = "default",
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[DivAttributes],
     ):
         base_class_attribute = "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
         class_attribute = attributes.pop("_class", "")

@@ -1,7 +1,10 @@
-from typing import Any, Dict
-
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags.html import Div
+from pytempl.tags.html import Div, DivAttributes
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class ProgressBar(Div):
@@ -10,7 +13,7 @@ class ProgressBar(Div):
         min_value: int,
         max_value: int,
         current_value: int | None = None,
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[DivAttributes],
     ):
         base_class_attribute = (
             "h-2 flex w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"

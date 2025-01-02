@@ -1,7 +1,10 @@
-from typing import Any, Dict
-
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags.html import Button, Div, Input, Span
+from pytempl.tags.html import Button, Div, DivAttributes, Input, Span
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class Switch(Div):
@@ -11,7 +14,7 @@ class Switch(Div):
         name: str = "",
         default_value: bool = False,
         disabled: bool = False,
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[DivAttributes],
     ):
         class_attribute = "relative flex items-center"
 

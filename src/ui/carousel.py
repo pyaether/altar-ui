@@ -1,11 +1,23 @@
-from typing import Any, Dict, Generator, Iterable, Literal, Self, Tuple
+from typing import Generator, Iterable, Literal, Self, Tuple
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags.html import Div, Span
+from pytempl.tags.html import (
+    ButtonAttributes as PyButtonAttributes,
+)
+from pytempl.tags.html import (
+    Div,
+    DivAttributes,
+    Span,
+)
 from pytempl_icons import ArrowLeftIcon, ArrowRightIcon
 
 from .button import Button
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class Carousel(Div):
@@ -13,7 +25,7 @@ class Carousel(Div):
         self,
         orientation: Literal["horizontal", "vertical"],
         number_of_slides: int,
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[DivAttributes],
     ):
         base_class_attribute = "relative"
         class_attribute = attributes.pop("_class", "")
@@ -28,7 +40,7 @@ class Carousel(Div):
 
 
 class CarouselContent(Div):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         self.forwarded_base_class_attribute = "flex"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         self.forwarded_attributes = attributes
@@ -70,7 +82,7 @@ class CarouselContent(Div):
 
 
 class CarouselItem(Div):
-    def __init__(self, item_index: int, **attributes: Dict[str, Any]):
+    def __init__(self, item_index: int, **attributes: Unpack[DivAttributes]):
         base_class_attribute = "min-w-0 shrink-0 grow-0 basis-full"
         class_attribute = attributes.pop("_class", "")
         slide_index = item_index + 1
@@ -86,7 +98,7 @@ class CarouselItem(Div):
 
 
 class CarouselPrevious(Button):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[PyButtonAttributes]):
         base_class_attribute = "absolute h-8 w-8 rounded-full"
         class_attribute = attributes.pop("_class", "")
 
@@ -110,7 +122,7 @@ class CarouselPrevious(Button):
 
 
 class CarouselNext(Button):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[PyButtonAttributes]):
         base_class_attribute = "absolute h-8 w-8 rounded-full"
         class_attribute = attributes.pop("_class", "")
 
