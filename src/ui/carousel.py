@@ -2,7 +2,7 @@ from typing import Any, Dict, Generator, Iterable, Literal, Self, Tuple
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Div, Span
+from pytempl.tags.html import Div, Span
 from pytempl_icons import ArrowLeftIcon, ArrowRightIcon
 
 from .button import Button

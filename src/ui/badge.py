@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any, Dict, Literal
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Div
+from pytempl.tags.html import Div
 
 
 class BadgeVariant(Enum):

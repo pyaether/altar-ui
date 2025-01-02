@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Textarea as PyTextarea
+from pytempl.tags.html import Textarea as PyTextarea
 
 
 class Textarea(PyTextarea):

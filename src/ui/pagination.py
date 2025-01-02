@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Li, Nav, Span, Ul
+from pytempl.tags.html import Li, Nav, Span, Ul
 from pytempl_icons import ChevronLeftIcon, ChevronRightIcon, EllipsisIcon
 
 from .button import Button, ButtonVariant

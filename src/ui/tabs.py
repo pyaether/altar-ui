@@ -3,7 +3,7 @@ from typing import Any, Dict, Generator, Iterable, Self, Tuple
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Button, Div
+from pytempl.tags.html import Button, Div
 
 
 class Tabs(Div):

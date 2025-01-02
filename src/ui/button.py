@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any, Dict, Literal
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Button as PyButton
+from pytempl.tags.html import Button as PyButton
 
 
 class ButtonVariant(Enum):

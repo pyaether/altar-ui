@@ -3,7 +3,7 @@ from typing import Any, Dict, Generator, Iterable, Self, Tuple
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import A, Li, Nav, Ul
+from pytempl.tags.html import A, Li, Nav, Ul
 
 
 class NavigationMenu(Nav):

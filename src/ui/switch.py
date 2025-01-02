@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Button, Div, Input, Span
+from pytempl.tags.html import Button, Div, Input, Span
 
 
 class Switch(Div):

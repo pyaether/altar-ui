@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any, Dict, Literal
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import H3, Div, Li, Ul
+from pytempl.tags.html import H3, Div, Li, Ul
 
 from .button import Button
 

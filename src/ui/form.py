@@ -1,8 +1,8 @@
 from typing import Any, Dict, Mapping, Sequence
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Div, P
-from pytempl.tags import Form as PyForm
+from pytempl.tags.html import Div, P
+from pytempl.tags.html import Form as PyForm
 
 from .label import Label
 

@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import H3, Div, P
+from pytempl.tags.html import H3, Div, P
 
 
 class Card(Div):

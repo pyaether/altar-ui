@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Div, Input
+from pytempl.tags.html import Div, Input
 from pytempl_icons import DotFilledIcon
 
 

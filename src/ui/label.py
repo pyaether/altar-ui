@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any, Dict, Literal
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Label as PyLabel
+from pytempl.tags.html import Label as PyLabel
 
 
 class LabelVariant(Enum):

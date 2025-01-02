@@ -1,8 +1,8 @@
 from typing import Any, Dict
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Div
-from pytempl.tags import Input as PyInput
+from pytempl.tags.html import Div
+from pytempl.tags.html import Input as PyInput
 from pytempl_icons import EyeIcon, EyeOffIcon
 
 from .button import Button
