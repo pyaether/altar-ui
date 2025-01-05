@@ -1,10 +1,27 @@
 from enum import Enum
-from typing import Any, Dict, Literal
+from typing import Literal
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import H3, Div, Li, Ul
+from pytempl.tags.html import (
+    H3,
+    Div,
+    DivAttributes,
+    HAttributes,
+    Li,
+    LiAttributes,
+    Ul,
+    UlAttributes,
+)
+from pytempl.tags.html import (
+    ButtonAttributes as PyButtonAttributes,
+)
 
 from .button import Button
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class PopoverSide(Enum):
@@ -15,7 +32,7 @@ class PopoverSide(Enum):
 
 
 class DropdownMenu(Div):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         super().__init__(
             x_data="{ isOpened: false, openedWithKeyboard: false }",
             **{"@keydown.esc.window": "isOpened = false, openedWithKeyboard = false"},
@@ -30,7 +47,7 @@ class DropdownMenuTrigger(Button):
             "default", "destructive", "outline", "secondary", "ghost", "link"
         ] = "default",
         size: Literal["default", "sm", "lg", "icon"] = "default",
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[PyButtonAttributes],
     ):
         super().__init__(
             type="button",
@@ -52,7 +69,7 @@ class DropdownMenuContent(Ul):
     def __init__(
         self,
         popover_side: Literal["bottom", "top", "left", "right"] = "bottom",
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[UlAttributes],
     ):
         base_class_attribute = "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
         class_attribute = attributes.pop("_class", "")
@@ -78,7 +95,7 @@ class DropdownMenuContent(Ul):
 
 
 class DropdownMenuLabel(H3):
-    def __init__(self, inset: bool = False, **attributes: Dict[str, Any]):
+    def __init__(self, inset: bool = False, **attributes: Unpack[HAttributes]):
         base_class_attribute = "px-2 py-1.5 text-sm font-semibold"
         class_attribute = attributes.pop("_class", "")
         inset_class_attribute = "pl-8" if inset else ""
@@ -93,7 +110,10 @@ class DropdownMenuLabel(H3):
 
 class DropdownMenuItem(Li):
     def __init__(
-        self, inset: bool = False, disabled: bool = False, **attributes: Dict[str, Any]
+        self,
+        inset: bool = False,
+        disabled: bool = False,
+        **attributes: Unpack[LiAttributes],
     ):
         base_class_attribute = "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground"
         class_attribute = attributes.pop("_class", "")
@@ -113,7 +133,7 @@ class DropdownMenuItem(Li):
 class DropdownMenuSeparator(Div):
     have_children = False
 
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         base_class_attribute = "-mx-1 my-1 h-px bg-muted"
         class_attribute = attributes.pop("_class", "")
 

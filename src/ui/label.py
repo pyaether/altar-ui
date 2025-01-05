@@ -1,8 +1,14 @@
 from enum import Enum
-from typing import Any, Dict, Literal
+from typing import Literal
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Label as PyLabel
+from pytempl.tags.html import Label as PyLabel
+from pytempl.tags.html import LabelAttributes as PyLabelAttributes
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class LabelVariant(Enum):
@@ -14,7 +20,7 @@ class Label(PyLabel):
         self,
         _for: str = "",
         variant: Literal["default"] = "default",
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[PyLabelAttributes],
     ):
         base_class_attribute = ""
         class_attribute = attributes.pop("_class", "")

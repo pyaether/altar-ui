@@ -1,8 +1,11 @@
-from typing import Any, Dict
-
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Div, Input
+from pytempl.tags.html import Div, DivAttributes, Input
 from pytempl_icons import CheckIcon
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class Checkbox(Div):
@@ -10,7 +13,7 @@ class Checkbox(Div):
         self,
         id: str,
         value: str,
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[DivAttributes],
     ):
         class_attribute = "relative flex items-center"
 

@@ -1,16 +1,22 @@
-from typing import Any, Dict, Generator, Iterable, Literal, Self, Tuple
+from typing import Generator, Iterable, Literal, Self, Tuple
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import H3, Div, Span
-from pytempl.tags import Button as PyButton
+from pytempl.tags.html import H3, Div, DivAttributes, HAttributes, Span
+from pytempl.tags.html import Button as PyButton
+from pytempl.tags.html import ButtonAttributes as PyButtonAttributes
 from pytempl_icons import CrossIcon
 
 from .button import Button
 
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
+
 
 class Dialog(Div):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         super().__init__(x_data="{ modalIsOpen: false }", **attributes)
 
 
@@ -21,7 +27,7 @@ class DialogTrigger(Button):
             "default", "destructive", "outline", "secondary", "ghost", "link"
         ] = "default",
         size: Literal["default", "sm", "lg", "icon"] = "default",
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[PyButtonAttributes],
     ):
         super().__init__(
             type="button",
@@ -45,7 +51,7 @@ class DialogClose(PyButton):
 
 
 class DialogOverlay(Div):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         base_class_attribute = "fixed inset-0 z-50 backdrop-blur-md bg-black/50"
         class_attribute = attributes.pop("_class", "")
 
@@ -61,7 +67,7 @@ class DialogOverlay(Div):
 
 
 class DialogContent(Div):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         self.forwarded_base_class_attribute = "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         self.forwarded_attributes = attributes
@@ -116,7 +122,7 @@ class DialogContent(Div):
 
 
 class DialogHeader(H3):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[HAttributes]):
         base_class_attribute = "flex flex-col space-y-1.5 text-center sm:text-left"
         class_attribute = attributes.pop("_class", "")
 
@@ -126,7 +132,7 @@ class DialogHeader(H3):
 
 
 class DialogFooter(Div):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         base_class_attribute = (
             "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2"
         )
@@ -160,7 +166,7 @@ class DialogFooter(Div):
 
 
 class DialogTitle(H3):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[HAttributes]):
         base_class_attribute = "text-lg font-semibold leading-none tracking-tight"
         class_attribute = attributes.pop("_class", "")
 
@@ -170,7 +176,7 @@ class DialogTitle(H3):
 
 
 class DialogBody(Div):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         base_class_attribute = "text-sm text-muted-foreground"
         class_attribute = attributes.pop("_class", "")
 

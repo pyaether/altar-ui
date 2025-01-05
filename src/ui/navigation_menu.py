@@ -1,13 +1,29 @@
 import warnings
-from typing import Any, Dict, Generator, Iterable, Self, Tuple
+from typing import Generator, Iterable, Self, Tuple
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import A, Li, Nav, Ul
+from pytempl.tags.html import (
+    A,
+    AAttributes,
+    Li,
+    LiAttributes,
+    Nav,
+    NavAttributes,
+    Ul,
+    UlAttributes,
+)
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class NavigationMenu(Nav):
-    def __init__(self, enable_mobile_view: bool = False, **attributes: Dict[str, Any]):
+    def __init__(
+        self, enable_mobile_view: bool = False, **attributes: Unpack[NavAttributes]
+    ):
         base_class_attribute = "relative z-10 flex flex-1 items-center"
         class_attribute = attributes.pop("_class", "")
 
@@ -26,7 +42,7 @@ class NavigationMenu(Nav):
 
 
 class NavigationMenuList(Ul):
-    def __init__(self, selected_value: str, **attributes: Dict[str, Any]):
+    def __init__(self, selected_value: str, **attributes: Unpack[UlAttributes]):
         base_class_attribute = "group flex flex-1 list-none items-center space-x-1"
         class_attribute = attributes.pop("_class", "")
 
@@ -65,7 +81,7 @@ class NavigationMenuList(Ul):
 
 class NavigationMenuItem(Li):
     def __init__(
-        self, value: str, disabled: bool = False, **attributes: Dict[str, Any]
+        self, value: str, disabled: bool = False, **attributes: Unpack[LiAttributes]
     ):
         self.value = value
 
@@ -120,7 +136,7 @@ class NavigationMenuItem(Li):
 
 
 class NavigationMenuLink(A):
-    def __init__(self, href: str, **attributes: Dict[str, Any]):
+    def __init__(self, href: str, **attributes: Unpack[AAttributes]):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(

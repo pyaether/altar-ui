@@ -1,12 +1,15 @@
-from typing import Any, Dict
-
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Div, Input
+from pytempl.tags.html import Div, DivAttributes, Input
 from pytempl_icons import DotFilledIcon
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class RadioGroup(Div):
-    def __init__(self, default_value: str, **attributes: Dict[str, Any]):
+    def __init__(self, default_value: str, **attributes: Unpack[DivAttributes]):
         base_class_attribute = "grid gap-2"
         class_attribute = attributes.pop("_class", "")
 
@@ -19,11 +22,7 @@ class RadioGroup(Div):
 
 class RadioGroupItem(Div):
     def __init__(
-        self,
-        id: str,
-        value: str,
-        name: str = "",
-        **attributes: Dict[str, Any],
+        self, id: str, value: str, name: str = "", **attributes: Unpack[DivAttributes]
     ):
         class_attribute = "relative flex items-center justify-start"
 

@@ -1,9 +1,14 @@
-from typing import Any, Dict, Generator, Iterable, Self, Tuple
+from typing import Generator, Iterable, Self, Tuple
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import H3, Button, Div
+from pytempl.tags.html import H3, Button, Div, DivAttributes, HAttributes
 from pytempl_icons import ChevronDownIcon
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class Accordion(Div):
@@ -11,7 +16,7 @@ class Accordion(Div):
 
 
 class AccordionItem(Div):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         base_class_attribute = "border-b"
         class_attribute = attributes.pop("_class", "")
         super().__init__(
@@ -22,7 +27,7 @@ class AccordionItem(Div):
 
 
 class AccordionTrigger(H3):
-    def __init__(self, value: str, **attributes: Dict[str, Any]):
+    def __init__(self, value: str, **attributes: Unpack[HAttributes]):
         self.forwarded_base_class_attribute = "flex flex-1 items-center justify-between py-4 text-sm font-medium transition-all hover:underline"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         self.forwarded_attributes = attributes
@@ -67,7 +72,7 @@ class AccordionTrigger(H3):
 
 
 class AccordionContent(Div):
-    def __init__(self, value: str, **attributes: Dict[str, Any]):
+    def __init__(self, value: str, **attributes: Unpack[DivAttributes]):
         self.forwarded_base_class_attribute = "pb-4 pt-0"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         super().__init__(

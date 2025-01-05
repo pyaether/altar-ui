@@ -1,13 +1,25 @@
 import warnings
-from typing import Any, Dict, Generator, Iterable, Self, Tuple
+from typing import Generator, Iterable, Self, Tuple
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Button, Div
+from pytempl.tags.html import (
+    Button,
+    Div,
+    DivAttributes,
+)
+from pytempl.tags.html import (
+    ButtonAttributes as PyButtonAttributes,
+)
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class Tabs(Div):
-    def __init__(self, default_value: str, **attributes: Dict[str, Any]):
+    def __init__(self, default_value: str, **attributes: Unpack[DivAttributes]):
         super().__init__(
             x_data=f"{{ selectedTab: '{default_value}' }}",
             **attributes,
@@ -15,7 +27,7 @@ class Tabs(Div):
 
 
 class TabsList(Div):
-    def __init__(self, **attributes: Dict[str, Any]):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         base_class_attribute = "inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground"
         class_attribute = attributes.pop("_class", "")
 
@@ -58,7 +70,7 @@ class TabsList(Div):
 
 
 class TabsTrigger(Button):
-    def __init__(self, value: str, **attributes: Dict[str, Any]):
+    def __init__(self, value: str, **attributes: Unpack[PyButtonAttributes]):
         base_class_attribute = "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-sm font-medium ring-offset-background transition-all disabled:pointer-events-none disabled:opacity-50"
         class_attribute = attributes.pop("_class", "")
 
@@ -79,7 +91,7 @@ class TabsTrigger(Button):
 
 
 class TabsContent(Div):
-    def __init__(self, value: str, **attributes: Dict[str, Any]):
+    def __init__(self, value: str, **attributes: Unpack[DivAttributes]):
         base_class_attribute = "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         class_attribute = attributes.pop("_class", "")
 

@@ -1,8 +1,14 @@
 from enum import Enum
-from typing import Any, Dict, Literal
+from typing import Literal
 
 from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags import Button as PyButton
+from pytempl.tags.html import Button as PyButton
+from pytempl.tags.html import ButtonAttributes as PyButtonAttributes
+
+try:
+    from typing import Unpack
+except ImportError:
+    from typing_extensions import Unpack
 
 
 class ButtonVariant(Enum):
@@ -30,7 +36,7 @@ class Button(PyButton):
             "default", "destructive", "outline", "secondary", "ghost", "link"
         ] = "default",
         size: Literal["default", "sm", "lg", "icon"] = "default",
-        **attributes: Dict[str, Any],
+        **attributes: Unpack[PyButtonAttributes],
     ):
         base_class_attribute = "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
         class_attribute = attributes.pop("_class", "")
