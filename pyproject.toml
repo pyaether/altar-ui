@@ -24,6 +24,7 @@ black = "^24.8"
 ruff = "^0.5"
 pre-commit = "^3.8"
 tomli = "^2.0"
+click = "^8.1"
 
 [tool.black]
 line-length = 88
@@ -55,6 +56,10 @@ ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+
+[tool.versioning]
+backend = "poetry"
 
 
 [tool.versioning.files]
