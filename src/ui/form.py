@@ -1,4 +1,5 @@
-from typing import Any, Dict, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from pytempl.plugins.tailwindcss import tw_merge
 from pytempl.tags.html import (
@@ -21,14 +22,14 @@ except ImportError:
     from typing_extensions import Unpack
 
 
-def convert_dict_to_x_data(data: Dict[str, Any]) -> str:
+def convert_dict_to_x_data(data: dict[str, Any]) -> str:
     data_list = []
     for key, value in data.items():
         if isinstance(value, str):
             data_list.append(f"{key}: '{value}'")
         elif isinstance(value, bool):
             data_list.append(f"{key}: {str(value).lower()}")
-        elif isinstance(value, (int, float, Sequence)):
+        elif isinstance(value, int | float | Sequence):
             data_list.append(f"{key}: {value}")
         elif isinstance(value, Mapping):
             data_list.append(f"{key}: {convert_dict_to_x_data(value)}")
@@ -38,14 +39,14 @@ def convert_dict_to_x_data(data: Dict[str, Any]) -> str:
     return f"{{{', '.join(data_list)}}}"
 
 
-def convert_dict_to_x_init(data: Dict[str, Any]) -> str:
+def convert_dict_to_x_init(data: dict[str, Any]) -> str:
     data_list = []
     for key, value in data.items():
         if isinstance(value, str):
             data_list.append(f"{key} = '{value}'")
         elif isinstance(value, bool):
             data_list.append(f"{key} = {str(value).lower()}")
-        elif isinstance(value, (int, float, Sequence)):
+        elif isinstance(value, int | float | Sequence):
             data_list.append(f"{key} = {value}")
         elif isinstance(value, Mapping):
             data_list.append(f"{key} = {convert_dict_to_x_data(value)}")
@@ -58,7 +59,7 @@ def convert_dict_to_x_init(data: Dict[str, Any]) -> str:
 class Form(PyForm):
     def __init__(
         self,
-        x_form_data_struct: Dict[str, Any] = None,
+        x_form_data_struct: dict[str, Any] = None,
         **attributes: Unpack[PyFormAttributes],
     ):
         if x_form_data_struct:
@@ -73,7 +74,7 @@ class Form(PyForm):
 class FormField(Div):
     def __init__(
         self,
-        x_form_field_init_data: Dict[str, Any] = None,
+        x_form_field_init_data: dict[str, Any] = None,
         **attributes: Unpack[DivAttributes],
     ):
         if x_form_field_init_data:

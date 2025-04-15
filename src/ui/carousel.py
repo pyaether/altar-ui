@@ -1,4 +1,5 @@
-from typing import Generator, Iterable, Literal, Self, Tuple
+from collections.abc import Generator, Iterable
+from typing import Literal, Self
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
@@ -50,7 +51,7 @@ class CarouselContent(Div):
             **attributes,
         )
 
-    def __call__(self, *children: Tuple) -> Self:
+    def __call__(self, *children: tuple) -> Self:
         forwarded_children = []
         for child in children:
             if (

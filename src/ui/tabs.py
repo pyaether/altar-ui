@@ -1,5 +1,6 @@
 import warnings
-from typing import Generator, Iterable, Self, Tuple
+from collections.abc import Generator, Iterable
+from typing import Self
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
@@ -42,7 +43,7 @@ class TabsList(Div):
             **attributes,
         )
 
-    def __call__(self, *children: Tuple) -> Self:
+    def __call__(self, *children: tuple) -> Self:
         for child in children:
             if (
                 isinstance(child, str)

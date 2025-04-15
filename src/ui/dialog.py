@@ -1,4 +1,5 @@
-from typing import Generator, Iterable, Literal, Self, Tuple
+from collections.abc import Generator, Iterable
+from typing import Literal, Self
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
@@ -84,7 +85,7 @@ class DialogContent(Div):
             aria_labelledby="$id('dialog-title')",
         )
 
-    def __call__(self, *children: Tuple) -> Self:
+    def __call__(self, *children: tuple) -> Self:
         forwarded_children = []
         for child in children:
             if (
@@ -142,7 +143,7 @@ class DialogFooter(Div):
             _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
-    def __call__(self, *children: Tuple) -> Self:
+    def __call__(self, *children: tuple) -> Self:
         for child in children:
             if (
                 isinstance(child, str)

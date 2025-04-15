@@ -1,5 +1,6 @@
+from collections.abc import Generator, Iterable
 from enum import Enum
-from typing import Generator, Iterable, Literal, Self, Tuple
+from typing import Literal, Self
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
@@ -55,7 +56,7 @@ class AlertDescription(Div):
             _class=tw_merge(class_attribute, base_class_attribute), **attributes
         )
 
-    def __call__(self, *children: Tuple) -> Self:
+    def __call__(self, *children: tuple) -> Self:
         for child in children:
             if (
                 isinstance(child, str)

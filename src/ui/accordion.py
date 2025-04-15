@@ -1,4 +1,5 @@
-from typing import Generator, Iterable, Self, Tuple
+from collections.abc import Generator, Iterable
+from typing import Self
 
 from pytempl import BaseWebElement
 from pytempl.plugins.tailwindcss import tw_merge
@@ -34,7 +35,7 @@ class AccordionTrigger(H3):
         self.value = value
         super().__init__(_class="flex")
 
-    def __call__(self, *children: Tuple) -> Self:
+    def __call__(self, *children: tuple) -> Self:
         forwarded_children = []
         for child in children:
             if (
@@ -86,7 +87,7 @@ class AccordionContent(Div):
             **attributes,
         )
 
-    def __call__(self, *children: Tuple) -> Self:
+    def __call__(self, *children: tuple) -> Self:
         forwarded_children = []
         for child in children:
             if (
