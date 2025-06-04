@@ -1,10 +1,10 @@
 from collections.abc import Generator, Iterable
-from enum import Enum
+from enum import StrEnum
 from typing import Literal, Self
 
-from pytempl import BaseWebElement
-from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags.html import H5, Div, DivAttributes, HAttributes, P
+from aether import BaseWebElement
+from aether.plugins.tailwindcss import tw_merge
+from aether.tags.html import Div, DivAttributes, P
 
 try:
     from typing import Unpack
@@ -12,9 +12,9 @@ except ImportError:
     from typing_extensions import Unpack
 
 
-class AlertVariant(Enum):
-    default = "bg-background text-foreground"
-    destructive = "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive"
+class AlertVariant(StrEnum):
+    default = "bg-card text-card-foreground"
+    destructive = "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90"
 
 
 class Alert(Div):
@@ -23,33 +23,38 @@ class Alert(Div):
         variant: Literal["default", "destructive"] = "default",
         **attributes: Unpack[DivAttributes],
     ):
-        base_class_attribute = "relative w-full rounded-lg border px-4 py-3 text-sm [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7"
-        class_attribute = attributes.pop("_class", "")
+        base_class_attribute = "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current"
         variant_class_attribute = AlertVariant[variant]
+        class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(
                 class_attribute,
-                f"{variant_class_attribute.value} {base_class_attribute}",
+                f"{variant_class_attribute} {base_class_attribute}",
             ),
+            data_slot="alert",
             role="alert",
             **attributes,
         )
 
 
-class AlertTitle(H5):
-    def __init__(self, **attributes: Unpack[HAttributes]):
-        base_class_attribute = "mb-1 font-medium leading-none tracking-tight"
+class AlertTitle(Div):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
+        base_class_attribute = (
+            "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight"
+        )
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute), **attributes
+            _class=tw_merge(class_attribute, base_class_attribute),
+            data_slot="alert-title",
+            **attributes,
         )
 
 
 class AlertDescription(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "text-sm [&_p]:leading-relaxed [&_ol]:ml-4 [&_ul]:ml-4"
+        base_class_attribute = "text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed [&_ol]:ml-4 [&_ul]:ml-4"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
