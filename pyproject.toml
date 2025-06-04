@@ -1,18 +1,18 @@
 [project]
-name = "aether-ui"
-version = "0.2.1"
+name = "pyaltar-ui"
+version = "0.3.0"
 description = "Beautifully designed UI components that you can copy and paste into your Aether apps."
 authors = [{ name = "Saurabh Ghanekar", email = "ghanekarsaurabh8@gmail.com" }]
 license = "BSD-2-Clause"
 license-files = ["LICENSE"]
 readme = "README.md"
-urls = { homepage = "https://github.com/aether-py/ui", repository = "https://github.com/aether-py/ui", documentation = "https://github.com/aether-py/ui" }
+urls = { homepage = "https://github.com/pyaether/altar-ui", repository = "https://github.com/pyaether/altar-ui", documentation = "https://github.com/pyaether/altar-ui" }
 requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-dependencies = ["pytempl>=0.2", "pytempl-icons>=0.2"]
+dependencies = ["pyaether>=0.3", "pyaltar-icons>=0.3"]
 
 
 [dependency-groups]
@@ -48,6 +48,7 @@ select = [
     "W",      # pycodestyle warnings
     "F",      # pyflakes
     "I",      # isort
+    "S",      # flake8-bandit
     "B",      # flake8-bugbear
     "C4",     # flake8-comprehensions
     "UP",     # pyupgrade
@@ -64,8 +65,9 @@ ignore = [
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
+
 [tool.versioning]
 backend = "uv"
 
 [tool.versioning.files]
-version_variable = ["src/ui/__init__.py:__version__"]
+version_variable = ["src/altar_ui/__init__.py:__version__"]
