@@ -1,12 +1,13 @@
 from collections.abc import Generator, Iterable
 from typing import Literal, Self
 
-from pytempl import BaseWebElement
-from pytempl.plugins.tailwindcss import tw_merge
-from pytempl.tags.html import H3, Div, DivAttributes, HAttributes, Span
-from pytempl.tags.html import Button as PyButton
-from pytempl.tags.html import ButtonAttributes as PyButtonAttributes
-from pytempl_icons import CrossIcon
+from aether import BaseWebElement
+from aether.plugins.alpinejs import AlpineJSData
+from aether.plugins.tailwindcss import tw_merge
+from aether.tags.html import H2, Div, DivAttributes, HAttributes, P, PAttributes, Span
+from aether.tags.html import Button as PyButton
+from aether.tags.html import ButtonAttributes as PyButtonAttributes
+from altar_icons import CrossIcon
 
 from .button import Button
 
@@ -18,7 +19,11 @@ except ImportError:
 
 class Dialog(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        super().__init__(x_data="{ modalIsOpen: false }", **attributes)
+        super().__init__(
+            x_data=AlpineJSData(data={"modalIsOpen": False}),
+            data_slot="dialog",
+            **attributes,
+        )
 
 
 class DialogTrigger(Button):
@@ -34,20 +39,22 @@ class DialogTrigger(Button):
             type="button",
             variant=variant,
             size=size,
+            data_slot="dialog-trigger",
             **{"@click": "modalIsOpen = true"},
             **attributes,
         )
 
 
 class DialogClose(PyButton):
-    def __init__(self):
+    def __init__(self, **attributes: Unpack[PyButtonAttributes]):
         super().__init__(
-            **{"@click": "modalIsOpen = false"},
-            aria_label="close modal",
-            _class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none",
+            type="button",
+            data_slot="dialog-close",
             **{
-                ":class": "modalIsOpen ? 'bg-accent text-muted-foreground' : ''",
+                "@click": "modalIsOpen = false",
+                ":class": "{ 'bg-accent': modalIsOpen, 'text-muted-foreground': modalIsOpen }",
             },
+            **attributes,
         )
 
 
@@ -58,31 +65,30 @@ class DialogOverlay(Div):
 
         super().__init__(
             x_show="modalIsOpen",
+            x_cloak=True,
+            data_slot="dialog-overlay",
             _class=tw_merge(class_attribute, base_class_attribute),
-            **{
-                "x-transition.opacity.duration.100ms": True,
-                ":class": "modalIsOpen ? 'animate-in fade-in-0' : 'animate-out fade-out-0'",
-            },
+            **{"x-transition.opacity.duration.100ms": True},
             **attributes,
         )
 
 
 class DialogContent(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        self.forwarded_base_class_attribute = "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg"
+        self.forwarded_base_class_attribute = "fixed left-[50%] top-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] rounded-lg gap-4 border bg-background p-6 shadow-lg duration-200 sm:max-w-lg"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         self.forwarded_attributes = attributes
 
         super().__init__(
             x_show="modalIsOpen",
-            x_cloak=True,
+            data_slot="dialog-portal",
             **{
-                "x-trap.inert.noscroll": "modalIsOpen",
+                "x-trap.noscroll": "modalIsOpen",
                 "@keydown.esc.window": "modalIsOpen = false",
                 "@click.self": "modalIsOpen = false",
+                ":aria_labelledby": "$id('dialog-portal')",
             },
             aria_modal="true",
-            aria_labelledby="$id('dialog-title')",
         )
 
     def __call__(self, *children: tuple) -> Self:
@@ -105,16 +111,21 @@ class DialogContent(Div):
             [
                 DialogOverlay()(),
                 Div(
+                    data_slot="dialog-content",
                     _class=tw_merge(
                         self.forwarded_class_attribute,
                         self.forwarded_base_class_attribute,
                     ),
+                    **{
+                        "x-transition:enter": "animate-in zoom-in-95 fade-in-0",
+                        "x-transition:leave": "animate-out zoom-out-95 fade-out-0",
+                    },
                     **self.forwarded_attributes,
                 )(
                     *forwarded_children,
-                    DialogClose()(
-                        CrossIcon(_class="h-4 w-4"), Span(_class="sr-only")("Close")
-                    ),
+                    DialogClose(
+                        _class="absolute right-4 top-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+                    )(CrossIcon(), Span(_class="sr-only")("Close")),
                 ),
             ]
         )
@@ -122,25 +133,27 @@ class DialogContent(Div):
         return self
 
 
-class DialogHeader(H3):
-    def __init__(self, **attributes: Unpack[HAttributes]):
-        base_class_attribute = "flex flex-col space-y-1.5 text-center sm:text-left"
+class DialogHeader(Div):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
+        base_class_attribute = "flex flex-col gap-2 text-center sm:text-left"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute), **attributes
+            data_slot="dialog-header",
+            _class=tw_merge(class_attribute, base_class_attribute),
+            **attributes,
         )
 
 
 class DialogFooter(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = (
-            "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2"
-        )
+        base_class_attribute = "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute), **attributes
+            data_slot="dialog-footer",
+            _class=tw_merge(class_attribute, base_class_attribute),
+            **attributes,
         )
 
     def __call__(self, *children: tuple) -> Self:
@@ -166,21 +179,25 @@ class DialogFooter(Div):
         return self
 
 
-class DialogTitle(H3):
+class DialogTitle(H2):
     def __init__(self, **attributes: Unpack[HAttributes]):
-        base_class_attribute = "text-lg font-semibold leading-none tracking-tight"
+        base_class_attribute = "text-lg leading-none font-semibold"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute), **attributes
+            data_slot="dialog-title",
+            _class=tw_merge(class_attribute, base_class_attribute),
+            **attributes,
         )
 
 
-class DialogBody(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "text-sm text-muted-foreground"
+class DialogDescription(P):
+    def __init__(self, **attributes: Unpack[PAttributes]):
+        base_class_attribute = "text-muted-foreground text-sm"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute), **attributes
+            data_slot="dialog-description",
+            _class=tw_merge(class_attribute, base_class_attribute),
+            **attributes,
         )

@@ -1,3 +1,3 @@
-# UI
+# Altar UI
 
-Beautifully designed UI components that you can copy and paste into your PyTempl apps.
+Beautifully designed UI components that you can copy and paste into your Aether apps.
