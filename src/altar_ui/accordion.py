@@ -157,19 +157,6 @@ class AccordionContent(Div):
         else:
             id_attribute = "$id('accordion-content')"
 
-        base_x_data_attribute = AlpineJSData(
-            data={"contentHeight": 0},
-            directive="x-data",
-        )
-        base_x_init_attribute = AlpineJSData(
-            data={
-                "contentHeight": Statement("$el.offsetHeight", seq_type="assignment")
-            },
-            directive="x-init",
-        )
-        x_data_attribute = attributes.pop("x_data", None)
-        x_init_attribute = attributes.pop("x_init", None)
-
         self.forwarded_base_class_attribute = "pb-4 pt-0"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         self.forwarded_attributes = attributes
@@ -181,8 +168,6 @@ class AccordionContent(Div):
             x_collapse=True,
             role="region",
             data_slot="accordion-content",
-            x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
-            x_init=alpine_js_data_merge(base_x_init_attribute, x_init_attribute),
             **{
                 ":aria_labelledby": "item_id",
                 ":id": f"`${{item_id}}-${id_attribute}`",
@@ -210,10 +195,6 @@ class AccordionContent(Div):
                 _class=tw_merge(
                     self.forwarded_class_attribute, self.forwarded_base_class_attribute
                 ),
-                **{
-                    ":style": "isActive(item_id) ? { height: `${contentHeight}px` } : { height: '0px' }",
-                    ":class": "{ 'animate-accordion-down': isActive(item_id), 'animate-accordion-up': !isActive(item_id) }",
-                },
                 **self.forwarded_attributes,
             )(*forwarded_children)
         )

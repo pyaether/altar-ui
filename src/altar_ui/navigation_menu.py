@@ -177,11 +177,17 @@ class NavigationMenuContent(Div):
 
 class NavigationMenuLink(A):
     def __init__(
-        self, active: bool, as_trigger: bool = False, **attributes: Unpack[AAttributes]
+        self,
+        active: bool | None,
+        as_trigger: bool = False,
+        **attributes: Unpack[AAttributes],
     ):
-        self.active = active
+        if active is None:
+            data_active_class_attribute = ""
+        else:
+            data_active_class_attribute = "data-[active=true]:focus:bg-accent data-[active=true]:hover:bg-accent data-[active=true]:bg-accent/50 data-[active=true]:text-accent-foreground hover:bg-accent hover:text-accent-foreground"
 
-        base_class_attribute = "data-[active=true]:focus:bg-accent data-[active=true]:hover:bg-accent data-[active=true]:bg-accent/50 data-[active=true]:text-accent-foreground hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-ring/50 [&_svg:not([class*='text-'])]:text-muted-foreground flex flex-col gap-1 rounded-sm p-2 text-sm transition-all outline-none focus-visible:ring-[3px] focus-visible:outline-1 [&_svg:not([class*='size-'])]:size-4"
+        base_class_attribute = "focus:bg-accent focus:text-accent-foreground focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-1 [&_svg:not([class*='text-'])]:text-muted-foreground flex flex-col gap-1 rounded-sm p-2 text-sm transition-all outline-none [&_svg:not([class*='size-'])]:size-4"
         base_x_data_attribute = AlpineJSData(
             data={"isActive": active},
             directive="x-data",
@@ -192,10 +198,12 @@ class NavigationMenuLink(A):
         super().__init__(
             _class=tw_merge(
                 class_attribute,
-                f"{base_class_attribute} {navigation_menu_trigger_class_attribute}",
+                f"{base_class_attribute} {data_active_class_attribute} {navigation_menu_trigger_class_attribute}",
             )
             if as_trigger
-            else tw_merge(class_attribute, base_class_attribute),
+            else tw_merge(
+                class_attribute, f"{base_class_attribute} {data_active_class_attribute}"
+            ),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             **{
                 ":aria-current": "isActive ? 'page' : undefined",
