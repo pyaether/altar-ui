@@ -71,3 +71,7 @@ backend = "uv"
 
 [tool.versioning.files]
 version_variable = ["src/altar_ui/__init__.py:__version__"]
+
+[tool.tailwind_sorter]
+file_patterns = [".py"]
+class_attributes = ["_class", "[a-zA-Z0-9_]*_class_attribute"]
