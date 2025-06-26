@@ -121,7 +121,7 @@ class CarouselPrevious(Button):
         size: Literal["default", "sm", "lg", "icon"] = "icon",
         **attributes: Unpack[PyButtonAttributes],
     ):
-        base_class_attribute = "absolute size-8 rounded-full"
+        base_class_attribute = "absolute rounded-full size-8"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -138,7 +138,7 @@ class CarouselPrevious(Button):
         )
 
         self.children = [
-            ArrowLeftIcon(_class="h-4 w-4"),
+            ArrowLeftIcon(_class="w-4 h-4"),
             Span(_class="sr-only")("Previous Slide"),
         ]
 
@@ -152,7 +152,7 @@ class CarouselNext(Button):
         size: Literal["default", "sm", "lg", "icon"] = "icon",
         **attributes: Unpack[PyButtonAttributes],
     ):
-        base_class_attribute = "absolute size-8 rounded-full"
+        base_class_attribute = "absolute rounded-full size-8"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -169,6 +169,6 @@ class CarouselNext(Button):
         )
 
         self.children = [
-            ArrowRightIcon(_class="h-4 w-4"),
+            ArrowRightIcon(_class="w-4 h-4"),
             Span(_class="sr-only")("Next Slide"),
         ]

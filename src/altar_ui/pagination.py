@@ -28,7 +28,7 @@ except ImportError:
 
 class Pagination(Nav):
     def __init__(self, number_of_pages: int, **attributes: Unpack[NavAttributes]):
-        base_class_attribute = "mx-auto flex w-full justify-center"
+        base_class_attribute = "flex justify-center mx-auto w-full"
         base_x_data_attribute = AlpineJSData(
             data={
                 "numberOfPages": number_of_pages,
@@ -59,7 +59,7 @@ class Pagination(Nav):
 
 class PaginationContent(Ul):
     def __init__(self, **attributes: Unpack[UlAttributes]):
-        base_class_attribute = "flex flex-row items-center gap-1"
+        base_class_attribute = "flex flex-row gap-1 items-center"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -183,7 +183,7 @@ class PaginationNext(Button):
 
 class PaginationEllipsis(Span):
     def __init__(self, **attributes: Unpack[SpanAttributes]):
-        base_class_attribute = "flex size-9 items-center justify-center"
+        base_class_attribute = "flex justify-center items-center size-9"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(

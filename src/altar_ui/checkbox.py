@@ -22,7 +22,7 @@ class Checkbox(Div):
         else:
             forwarded_id_attribute = "$id('checkbox')"
 
-        forwarded_base_class_attribute = "peer cursor-pointer appearance-none border-input dark:bg-input/30 checked:bg-primary checked:text-primary-foreground dark:checked:bg-primary checked:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+        forwarded_base_class_attribute = "rounded-[4px] border-input border outline-none shadow-xs transition-shadow appearance-none cursor-pointer peer aria-invalid:ring-destructive/20 aria-invalid:border-destructive size-4 shrink-0 dark:bg-input/30 dark:aria-invalid:ring-destructive/40 checked:text-primary-foreground checked:bg-primary checked:border-primary disabled:opacity-50 disabled:cursor-not-allowed focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:checked:bg-primary"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         self.forwarded_attributes = attributes
 
@@ -44,7 +44,7 @@ class Checkbox(Div):
             ),
             CheckIcon(
                 data_slot="checkbox-indicator",
-                _class="pointer-events-none invisible absolute inset-0 peer-checked:text-primary-foreground peer-checked:transition-none peer-checked:visible size-4",
+                _class="absolute inset-0 invisible pointer-events-none peer-checked:text-primary-foreground peer-checked:transition-none peer-checked:visible size-4",
             ),
         ]
 

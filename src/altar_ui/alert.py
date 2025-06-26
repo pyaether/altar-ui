@@ -23,7 +23,7 @@ class Alert(Div):
         variant: Literal["default", "destructive"] = "default",
         **attributes: Unpack[DivAttributes],
     ):
-        base_class_attribute = "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current"
+        base_class_attribute = "grid grid-cols-[0_1fr] relative gap-y-0.5 items-start px-4 py-3 w-full text-sm rounded-lg border has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:text-current [&>svg]:translate-y-0.5 [&>svg]:size-4"
         variant_class_attribute = AlertVariant[variant]
         class_attribute = attributes.pop("_class", "")
 
@@ -54,7 +54,7 @@ class AlertTitle(Div):
 
 class AlertDescription(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed [&_ol]:ml-4 [&_ul]:ml-4"
+        base_class_attribute = "grid gap-1 justify-items-start text-muted-foreground text-sm col-start-2 [&_ol]:ml-4 [&_ul]:ml-4 [&_p]:leading-relaxed"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(

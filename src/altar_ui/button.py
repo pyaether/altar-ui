@@ -37,7 +37,7 @@ class Button(PyButton):
         size: Literal["default", "sm", "lg", "icon"] = "default",
         **attributes: Unpack[PyButtonAttributes],
     ):
-        base_class_attribute = "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
+        base_class_attribute = "inline-flex gap-2 justify-center items-center font-medium text-sm whitespace-nowrap rounded-md outline-none transition-all [&_svg:not([class*='size-'])]:size-4 shrink-0 aria-invalid:ring-destructive/20 aria-invalid:border-destructive dark:aria-invalid:ring-destructive/40 disabled:opacity-50 disabled:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0"
         if variant is None:
             variant_class_attribute = ""
         else:

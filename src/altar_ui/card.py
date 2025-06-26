@@ -9,7 +9,7 @@ except ImportError:
 
 class Card(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm"
+        base_class_attribute = "flex flex-col gap-6 py-6 text-card-foreground bg-card rounded-xl border shadow-sm"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -21,7 +21,7 @@ class Card(Div):
 
 class CardHeader(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+        base_class_attribute = "grid grid-rows-[auto_auto] gap-1.5 items-start px-6 @container/card-header auto-rows-min has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -33,7 +33,7 @@ class CardHeader(Div):
 
 class CardTitle(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "leading-none font-semibold"
+        base_class_attribute = "font-semibold leading-none"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(

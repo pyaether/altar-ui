@@ -13,7 +13,7 @@ except ImportError:
     from typing_extensions import Unpack
 
 
-navigation_menu_trigger_class_attribute = "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 focus-visible:ring-ring/50 outline-none transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1"
+navigation_menu_trigger_class_attribute = "inline-flex justify-center items-center px-4 py-2 w-max h-9 font-medium text-sm bg-background rounded-md outline-none transition-[color,box-shadow] group disabled:opacity-50 disabled:pointer-events-none hover:text-accent-foreground hover:bg-accent focus:text-accent-foreground focus:bg-accent focus-visible:outline-1 focus-visible:ring-ring/50 focus-visible:ring-[3px]"
 
 
 class NavigationMenu(Nav):
@@ -140,7 +140,7 @@ class NavigationMenuTrigger(PyButton):
 
         self.children.append(
             ChevronDownIcon(
-                _class="relative top-[1px] ml-1 size-3 transition duration-300",
+                _class="relative top-[1px] ml-1 transition duration-300 size-3",
                 aria_hidden="true",
                 **{
                     ":class": "{ 'rotate-180': isNavItemActive(item_id) }",
@@ -156,7 +156,7 @@ class NavigationMenuContent(Div):
         base_class_attribute = (
             "absolute top-full left-0 isolate z-50 flex justify-center"
         )
-        base_group_class_attribute = "bg-popover text-popover-foreground top-full mt-1.5 overflow-hidden rounded-md border shadow duration-200 **:data-[slot=navigation-menu-link]:focus:ring-0 **:data-[slot=navigation-menu-link]:focus:outline-none"
+        base_group_class_attribute = "overflow-hidden top-full mt-1.5 text-popover-foreground bg-popover rounded-md border duration-200 shadow **:data-[slot=navigation-menu-link]:focus:ring-0 **:data-[slot=navigation-menu-link]:focus:outline-none"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -185,9 +185,9 @@ class NavigationMenuLink(A):
         if active is None:
             data_active_class_attribute = ""
         else:
-            data_active_class_attribute = "data-[active=true]:focus:bg-accent data-[active=true]:hover:bg-accent data-[active=true]:bg-accent/50 data-[active=true]:text-accent-foreground hover:bg-accent hover:text-accent-foreground"
+            data_active_class_attribute = "data-[active=true]:focus:bg-accent data-[active=true]:hover:bg-accent data-[active=true]:bg-accent/50 data-[active=true]:text-accent-foreground hover:text-accent-foreground hover:bg-accent"
 
-        base_class_attribute = "focus:bg-accent focus:text-accent-foreground focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-1 [&_svg:not([class*='text-'])]:text-muted-foreground flex flex-col gap-1 rounded-sm p-2 text-sm transition-all outline-none [&_svg:not([class*='size-'])]:size-4"
+        base_class_attribute = "flex flex-col gap-1 p-2 text-sm rounded-sm outline-none transition-all [&_svg:not([class*='text-'])]:text-muted-foreground [&_svg:not([class*='size-'])]:size-4 focus:text-accent-foreground focus:bg-accent focus-visible:outline-1 focus-visible:ring-ring/50 focus-visible:ring-[3px]"
         base_x_data_attribute = AlpineJSData(
             data={"isActive": active},
             directive="x-data",

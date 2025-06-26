@@ -25,7 +25,7 @@ class Badge(Span):
         variant: Literal["default", "destructive", "outline", "secondary"] = "default",
         **attributes: Unpack[SpanAttributes],
     ):
-        base_class_attribute = "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden"
+        base_class_attribute = "inline-flex overflow-hidden gap-1 justify-center items-center px-2 py-0.5 w-fit font-medium text-xs whitespace-nowrap rounded-md border transition-[color,box-shadow] shrink-0 aria-invalid:ring-destructive/20 aria-invalid:border-destructive dark:aria-invalid:ring-destructive/40 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] [&>svg]:pointer-events-none [&>svg]:size-3"
         variant_class_attribute = BadgeVariant[variant]
         class_attribute = attributes.pop("_class", "")
 

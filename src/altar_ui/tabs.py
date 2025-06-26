@@ -45,7 +45,7 @@ class Tabs(Div):
 
 class TabsList(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]"
+        base_class_attribute = "inline-flex justify-center items-center p-[3px] w-fit h-9 text-muted-foreground bg-muted rounded-lg"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -87,7 +87,7 @@ class TabsList(Div):
 
 class TabsTrigger(PyButton):
     def __init__(self, value: str, **attributes: Unpack[PyButtonAttributes]):
-        base_class_attribute = "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+        base_class_attribute = "inline-flex flex-1 gap-1.5 justify-center items-center px-2 py-1 h-[calc(100%-1px)] font-medium text-foreground text-sm whitespace-nowrap rounded-md border border-transparent transition-[color,box-shadow] [&_svg:not([class*='size-'])]:size-4 dark:text-muted-foreground disabled:opacity-50 disabled:pointer-events-none focus-visible:border-ring focus-visible:outline-ring focus-visible:outline-1 focus-visible:ring-ring/50 focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0"
         class_attribute = attributes.pop("_class", "")
 
         if attributes.get("id"):

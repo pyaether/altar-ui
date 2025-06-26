@@ -60,7 +60,7 @@ class DialogClose(PyButton):
 
 class DialogOverlay(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "fixed inset-0 z-50 backdrop-blur-md bg-black/50"
+        base_class_attribute = "fixed inset-0 z-50 bg-black/50 backdrop-blur-md"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -75,7 +75,7 @@ class DialogOverlay(Div):
 
 class DialogContent(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        self.forwarded_base_class_attribute = "fixed left-[50%] top-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] rounded-lg gap-4 border bg-background p-6 shadow-lg duration-200 sm:max-w-lg"
+        self.forwarded_base_class_attribute = "grid fixed top-[50%] left-[50%] z-50 gap-4 p-6 w-full max-w-[calc(100%-2rem)] bg-background rounded-lg border shadow-lg duration-200 translate-x-[-50%] translate-y-[-50%] sm:max-w-lg"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         self.forwarded_attributes = attributes
 
@@ -124,7 +124,7 @@ class DialogContent(Div):
                 )(
                     *forwarded_children,
                     DialogClose(
-                        _class="absolute right-4 top-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+                        _class="absolute top-4 right-4 rounded-xs ring-offset-background opacity-70 transition-opacity [&_svg:not([class*='size-'])]:size-4 disabled:pointer-events-none hover:opacity-100 focus:outline-hidden focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 [&_svg]:pointer-events-none [&_svg]:shrink-0"
                     )(CrossIcon(), Span(_class="sr-only")("Close")),
                 ),
             ]
@@ -181,7 +181,7 @@ class DialogFooter(Div):
 
 class DialogTitle(H2):
     def __init__(self, **attributes: Unpack[HAttributes]):
-        base_class_attribute = "text-lg leading-none font-semibold"
+        base_class_attribute = "font-semibold text-lg leading-none"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(

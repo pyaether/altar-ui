@@ -45,7 +45,7 @@ class RadioGroupItem(Div):
         else:
             forwarded_id_attribute = "$id('radio-group-item')"
 
-        forwarded_base_class_attribute = "peer cursor-pointer appearance-none border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+        forwarded_base_class_attribute = "text-primary rounded-full border-input border outline-none shadow-xs transition-[color,box-shadow] appearance-none cursor-pointer peer aria-invalid:ring-destructive/20 aria-invalid:border-destructive aspect-square size-4 shrink-0 dark:bg-input/30 dark:aria-invalid:ring-destructive/40 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         forwarded_name_attribute = attributes.pop("name", "radio-group")
         self.forwarded_attributes = attributes
@@ -68,7 +68,7 @@ class RadioGroupItem(Div):
             ),
             CircleIcon(
                 data_slot="radio-group-indicator",
-                _class="pointer-events-none invisible absolute absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-primary peer-checked:visible",
+                _class="absolute top-1/2 left-1/2 invisible pointer-events-none fill-primary size-2 -translate-x-1/2 -translate-y-1/2 peer-checked:visible",
             ),
         ]
 

@@ -46,7 +46,7 @@ class Progress(Div):
 
         self.children.append(
             Div(
-                _class="bg-primary h-full w-full flex-1 transition-all",
+                _class="flex-1 w-full h-full bg-primary transition-all",
                 data_slot="progress-indicator",
                 **{
                     ":style": "{ transform: `translateX(-${100 - calcPercentage(minValue, maxValue, currentValue)}%)` }"

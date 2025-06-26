@@ -70,7 +70,7 @@ class DropdownMenuContent(Div):
         side_offset: int = 8,
         **attributes: Unpack[DivAttributes],
     ):
-        base_class_attribute = "z-50 min-w-[8rem] max-h-[18rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md"
+        base_class_attribute = "overflow-x-hidden overflow-y-auto z-50 p-1 min-w-[8rem] max-h-[18rem] text-popover-foreground bg-popover rounded-md border shadow-md"
         data_side_class_attribute = "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
         class_attribute = attributes.pop("_class", "")
 
@@ -109,12 +109,12 @@ class DropdownMenuItem(Div):
         variant: Literal["default", "destructive"] = "default",
         **attributes: Unpack[DivAttributes],
     ):
-        base_class_attribute = "hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+        base_class_attribute = "flex relative gap-2 items-center px-2 py-1.5 text-sm rounded-sm outline-hidden cursor-default select-none [&_svg:not([class*='text-'])]:text-muted-foreground [&_svg:not([class*='size-'])]:size-4 hover:text-accent-foreground hover:bg-accent focus:text-accent-foreground focus:bg-accent [&_svg]:pointer-events-none [&_svg]:shrink-0"
         data_disabled_class_attribute = (
             "data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
         )
         data_inset_class_attribute = "data-[inset]:pl-8"
-        data_variant_class_attribute = "data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive"
+        data_variant_class_attribute = "data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -133,7 +133,7 @@ class DropdownMenuItem(Div):
 
 class DropdownMenuLabel(Div):
     def __init__(self, inset: bool = False, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "px-2 py-1.5 text-sm font-medium"
+        base_class_attribute = "px-2 py-1.5 font-medium text-sm"
         data_inset_class_attribute = "data-[inset]:pl-8"
         class_attribute = attributes.pop("_class", "")
 
@@ -149,7 +149,7 @@ class DropdownMenuLabel(Div):
 
 class DropdownMenuSeparator(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "bg-border -mx-1 my-1 h-px"
+        base_class_attribute = "my-1 h-px bg-border -mx-1"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(

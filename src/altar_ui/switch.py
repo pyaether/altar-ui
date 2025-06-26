@@ -18,7 +18,7 @@ class Switch(Div):
         disabled: bool = False,
         **attributes: Unpack[DivAttributes],
     ):
-        base_class_attribute = "peer relative inline-flex items-center"
+        base_class_attribute = "inline-flex relative items-center peer"
         base_x_data_attribute = AlpineJSData(
             data={"checked": default_value}, directive="x-data"
         )
@@ -31,7 +31,7 @@ class Switch(Div):
         else:
             forwarded_id_attribute = "$id('switch')"
 
-        forwarded_base_class_attribute = "peer cursor-pointer appearance-none focus-visible:border-ring focus-visible:ring-ring/50 inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+        forwarded_base_class_attribute = "inline-flex items-center w-8 h-[1.15rem] rounded-full border border-transparent outline-none shadow-xs transition-all appearance-none cursor-pointer peer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         forwarded_name_attribute = attributes.pop("name", "toggle-switch")
         self.forwarded_attributes = attributes
@@ -66,7 +66,7 @@ class Switch(Div):
                 **self.forwarded_attributes,
             )(
                 Span(
-                    _class="bg-background pointer-events-none block size-4 rounded-full ring-0 transition-transform",
+                    _class="block bg-background rounded-full ring-0 transition-transform pointer-events-none size-4",
                     **{
                         ":class": "{ 'dark:bg-primary-foreground translate-x-[calc(100%-2px)]': checked, 'dark:bg-foreground translate-x-0': !checked }"
                     },

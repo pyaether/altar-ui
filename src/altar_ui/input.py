@@ -46,7 +46,7 @@ class Input(PyInput):
 
 class PasswordInput(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "flex items-center relative rounded-md"
+        base_class_attribute = "flex relative items-center rounded-md"
         base_x_data_attribute = AlpineJSData(
             data={"showPassword": False}, directive="x-data"
         )
@@ -71,11 +71,11 @@ class PasswordInput(Div):
                     type="button",
                     size="icon",
                     variant="ghost",
-                    _class="absolute right-1 top-1/2 h-6 w-6 -translate-y-1/2 rounded-md text-muted-foreground",
+                    _class="absolute top-1/2 right-1 w-6 h-6 text-muted-foreground rounded-md -translate-y-1/2",
                     **{"@click": "showPassword = !showPassword"},
                 )(
-                    EyeOffIcon(x_show="!showPassword", _class="h-4 w-4"),
-                    EyeIcon(x_show="showPassword", _class="h-4 w-4"),
+                    EyeOffIcon(x_show="!showPassword", _class="w-4 h-4"),
+                    EyeIcon(x_show="showPassword", _class="w-4 h-4"),
                 ),
             ]
         )

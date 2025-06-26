@@ -13,7 +13,7 @@ class Label(PyLabel):
         self,
         **attributes: Unpack[PyLabelAttributes],
     ):
-        base_class_attribute = "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
+        base_class_attribute = "flex gap-2 items-center font-medium text-sm select-none leading-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50"
         class_attribute = attributes.pop("_class", "")
         data_slot = attributes.pop("data_slot", "label")
 
