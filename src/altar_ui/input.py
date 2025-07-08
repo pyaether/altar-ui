@@ -53,6 +53,7 @@ class PasswordInput(Div):
         x_data_attribute = attributes.pop("x_data", None)
 
         self.forwarded_class_attribute = attributes.pop("_class", "")
+        self.forwarded_attributes = attributes
 
         super().__init__(
             _class=base_class_attribute,
@@ -65,7 +66,7 @@ class PasswordInput(Div):
                     type="password",
                     _class=self.forwarded_class_attribute,
                     **{":type": "showPassword? 'text' : 'password'"},
-                    **attributes,
+                    **self.forwarded_attributes,
                 ),
                 Button(
                     type="button",

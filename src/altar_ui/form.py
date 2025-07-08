@@ -52,8 +52,10 @@ class FormField(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
         base_x_data_attribute = AlpineJSData(
             data={
-                "field_id": '$id("form-field-id")',
-                "has_error": "null",
+                "field_id": Statement(
+                    content="$id('form-field-id')", seq_type="assignment"
+                ),
+                "has_error": None,
                 "updateHasErrorValueInParent(id, value)": Statement(
                     """{
                         const field_item = form_fields.find(field => field.id === id);
@@ -102,7 +104,7 @@ class FormItem(Div):
         base_class_attribute = "grid gap-2"
         base_x_data_attribute = AlpineJSData(
             data={
-                "has_error": "null",
+                "has_error": None,
                 "error_message": "",
                 "form_fields": [],
                 "updateHasErrorValueInParent(value)": Statement(
@@ -165,7 +167,10 @@ class FormLabel(Label):
         super().__init__(
             _class=tw_merge(class_attribute, data_error_class_attribute),
             data_slot="form-label",
-            **{":data-error": "has_error", ":for": "$id('form-item-id')"},
+            **{
+                ":data-error": "has_error",
+                ":for": Statement(content="$id('form-item-id')", seq_type="assignment"),
+            },
             **attributes,
         )
 
@@ -210,7 +215,7 @@ class FormControl(Div):
                     seq_type="definition",
                 ),
                 "getHasError()": Statement(
-                    "{ if (has_error == null) { return false } else { return has_error } }",
+                    "{ if (has_error === null) { return false } else { return has_error } }",
                     seq_type="definition",
                 ),
             },
@@ -261,7 +266,9 @@ class FormControl(Div):
                     else:
                         current_attributes = child.attributes
 
-                    update_attributes[":id"] = "$id('form-item-id')"
+                    update_attributes[":id"] = Statement(
+                        content="$id('form-item-id')", seq_type="assignment"
+                    )
                     update_attributes[":aria-describedby"] = (
                         "getHasError() ? $id('form-description') : `${$id('form-description')} ${$id('form-message')}`"
                     )
@@ -350,7 +357,11 @@ class FormDescription(P):
         super().__init__(
             _class=tw_merge(class_attribute, base_class_attribute),
             data_slot="form-description",
-            **{":id": '$id("form-description")'},
+            **{
+                ":id": Statement(
+                    content="$id('form-description')", seq_type="assignment"
+                )
+            },
             **attributes,
         )
 
@@ -365,7 +376,7 @@ class FormMessage(P):
             data_slot="form-message",
             x_show="has_error",
             x_text="error_message",
-            **{":id": '$id("form-message")'},
+            **{":id": Statement(content="$id('form-message')", seq_type="assignment")},
             **attributes,
         )
 
