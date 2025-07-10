@@ -23,7 +23,7 @@ from .button import Button, ButtonVariant
 try:
     from typing import Unpack
 except ImportError:
-    from typing_extensions import Unpack
+    from typing_extensions import Unpack  # noqa: UP035
 
 
 class Pagination(Nav):

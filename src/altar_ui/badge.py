@@ -7,7 +7,7 @@ from aether.tags.html import Span, SpanAttributes
 try:
     from typing import Unpack
 except ImportError:
-    from typing_extensions import Unpack
+    from typing_extensions import Unpack  # noqa: UP035
 
 
 class BadgeVariant(StrEnum):

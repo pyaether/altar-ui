@@ -10,7 +10,7 @@ from altar_icons import ChevronDownIcon
 try:
     from typing import Unpack
 except ImportError:
-    from typing_extensions import Unpack
+    from typing_extensions import Unpack  # noqa: UP035
 
 
 navigation_menu_trigger_class_attribute = "inline-flex justify-center items-center px-4 py-2 w-max h-9 font-medium text-sm bg-background rounded-md outline-none transition-[color,box-shadow] group disabled:opacity-50 disabled:pointer-events-none hover:text-accent-foreground hover:bg-accent focus:text-accent-foreground focus:bg-accent focus-visible:outline-1 focus-visible:ring-ring/50 focus-visible:ring-[3px]"
