@@ -24,7 +24,7 @@ from aether.tags.html import Button as PyButton
 from aether.tags.html import (
     ButtonAttributes as PyButtonAttributes,
 )
-from altar_icons import HamburgerMenuIcon
+from altar_icons import PanelLeftIcon
 
 from .button import Button
 from .passthrough import Passthrough
@@ -118,7 +118,7 @@ class SidebarTrigger(Button):
             **attributes,
         )
 
-        self.children = [HamburgerMenuIcon(), Span(_class="sr-only")("Toggle Sidebar")]
+        self.children = [PanelLeftIcon(), Span(_class="sr-only")("Toggle Sidebar")]
 
     def __call__(self, *_children: tuple) -> Self:
         warnings.warn(
@@ -327,7 +327,7 @@ class SidebarGroup(Div):
 
 
 class SidebarGroupLabel(Div):
-    def __init__(self, as_child: bool = False, **attributes: Unpack[DivAttributes]):
+    def __init__(self, pass_through: bool = False, **attributes: Unpack[DivAttributes]):
         base_class_attribute = "flex items-center px-2 h-8 font-medium text-sidebar-foreground/70 text-xs rounded-md outline-hidden ring-sidebar-ring transition-[margin,opacity] duration-200 ease-linear shrink-0 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0 focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0"
         class_attribute = attributes.pop("_class", "")
 
@@ -338,10 +338,10 @@ class SidebarGroupLabel(Div):
             **attributes,
         )
 
-        self.as_child = as_child
+        self.pass_through = pass_through
 
     def __call__(self, *children: tuple) -> Self | Passthrough:
-        if self.as_child:
+        if self.pass_through:
             return Passthrough(**self.attributes)(*children)
         else:
             return super().__call__(*children)
@@ -425,7 +425,7 @@ class SidebarMenuItem(Li):
 class SidebarMenuButton(PyButton):
     def __init__(
         self,
-        as_child: bool = False,
+        pass_through: bool = False,
         is_active: bool = False,
         variant: Literal["default", "outline"] = "default",
         size: Literal["default", "sm", "lg"] = "default",
@@ -452,10 +452,10 @@ class SidebarMenuButton(PyButton):
             **attributes,
         )
 
-        self.as_child = as_child
+        self.pass_through = pass_through
 
     def __call__(self, *children: tuple) -> Self | Passthrough:
-        if self.as_child:
+        if self.pass_through:
             return Passthrough(**self.attributes)(*children)
         else:
             return super().__call__(*children)

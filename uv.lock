@@ -246,19 +246,19 @@ wheels = [
 
 [[package]]
 name = "pyaltar-icons"
-version = "0.3.1"
+version = "0.3.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pyaether" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ee/08/b4e9145de6c6dc44b6bcd4d9f7a0b6addd5acd86a2ca2835f7d84d9d2d97/pyaltar_icons-0.3.1.tar.gz", hash = "sha256:b0a8722be2291dde80706c0fe759307657c7f98039b30d6efcc9a6f9cac2409d", size = 40244, upload-time = "2025-07-02T21:45:37.819Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9e/f8/9d74ef3b0e9a796efa46f8bd543d615f6dfe4a9ad8953672c9948303ceed/pyaltar_icons-0.3.4.tar.gz", hash = "sha256:9dbd3d9dee19c5524467e390cc105ae70b96b5804e6fbb1e818f0e5510811f43", size = 42795, upload-time = "2025-07-25T03:41:28.439Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f0/79/368c2fc48ae7ad9bdcf54d34f871f63a7bc85d0b5863706cb8dd0d2b3656/pyaltar_icons-0.3.1-py3-none-any.whl", hash = "sha256:98da9bac8583a7a97c26577649b463fbdce46eff49276c53045be3d01c0c81c8", size = 4780, upload-time = "2025-07-02T21:45:36.53Z" },
+    { url = "https://files.pythonhosted.org/packages/48/69/34e6a003a095c2c777eccfe7983944d5ea19cfe7eb9a006e92be5a154ed8/pyaltar_icons-0.3.4-py3-none-any.whl", hash = "sha256:b773e7b3ed4168e9493e7fed185e75a053d474baf5eb6e22b8d73c49734a20b0", size = 5157, upload-time = "2025-07-25T03:41:27.429Z" },
 ]
 
 [[package]]
 name = "pyaltar-ui"
-version = "0.3.4"
+version = "0.3.5"
 source = { virtual = "." }
 dependencies = [
     { name = "pyaether" },
