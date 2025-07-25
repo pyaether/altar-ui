@@ -31,7 +31,7 @@ from .switch import Switch
 try:
     from typing import Unpack
 except ImportError:
-    from typing_extensions import Unpack
+    from typing_extensions import Unpack  # noqa: UP035
 
 
 class Form(PyForm):
@@ -124,7 +124,7 @@ class FormItem(Div):
                     """
                     Alpine.effect(() => {
                         if (form_fields.length > 0) {
-                            const form_fields_has_error = form_fields.some(field => field["has_error"] === true);
+                            const form_fields_has_error = form_fields.some((field) => field["has_error"] === true);
                             if (form_fields_has_error) {
                                 has_error = form_fields_has_error;
                                 error_message = "Invalid Value";
@@ -182,36 +182,92 @@ class FormControl(Div):
         self.hook_form_item = hook_form_item
         base_x_data_attribute = AlpineJSData(
             data={
-                "runValidation(value, conditional, max_length, min_length)": Statement(
-                    f"""{{
-                        if (conditional instanceof RegExp){{
-                            if (conditional.test(value) === false) {{
+                "runValidation(value, { rules = [], constraints = {} } = {})": Statement(
+                    """{
+                        const constraintChecker = (value, constraints) => {
+                            let check_failed = false;
+                            let message = null;
+
+                            for (const type in constraints) {
+                                const constraint = constraints[type];
+
+                                switch (type) {
+                                    case 'min_length':
+                                        if (value && value.length < constraint.value) {
+                                            check_failed = true;
+                                            message = constraint.message || `Must be at least ${constraint.value} characters.`;
+                                        }
+                                        break;
+                                    case 'max_length':
+                                        if (value && value.length > constraint.value) {
+                                            check_failed = true;
+                                            message = constraint.message || `Must be at most ${constraint.value} characters.`;
+                                        }
+                                        break;
+                                    // # TODO: Add other supported cases
+                                }
+                            }
+
+                            if (check_failed) {
+                                return { failed: true, message: message }
+                            } else {
+                                return { failed: false, message: null }
+                            }
+                        }
+
+                        const ruleChecker = (value, rules) => {
+                            let check_failed = false;
+                            let message = null;
+
+                            for (const rule of rules) {
+                                if (rule.test instanceof RegExp) {
+                                    if (rule.test.test(value) === false) {
+                                        check_failed = true;
+                                        message = rule.message;
+                                        break;
+                                    } else {
+                                        check_failed = false;
+                                        message = null;
+                                    }
+                                } else if (rule.test instanceof Function) {
+                                    if (rule.test(value) === false) {
+                                        check_failed = true;
+                                        message = rule.message;
+                                        break;
+                                    } else {
+                                        check_failed = false;
+                                        message = null;
+                                    }
+                                }
+                            }
+
+                            if (check_failed) {
+                                return { failed: true, message: message }
+                            } else {
+                                return { failed: false, message: null }
+                            }
+                        }
+
+                        if (value) {
+                            const constraintCheck = constraintChecker(value, constraints)
+                            if (constraintCheck.failed) {
                                 has_error = true;
-                                if (min_length && value.length > 0 && value.length < min_length ) {{
-                                    error_message = `Must be at least ${{min_length}} characters.`;
-                                }} else if (max_length && value.length > max_length) {{
-                                    error_message = `Must be at most ${{max_length}} characters.`;
-                                }} else {{
-                                    error_message = "{self.hook_form_item.validator.get("validation_fail_message", "Enter valid value.") if self.hook_form_item is not None else "Enter valid value."}";
-                                }}
-                            }} else {{
-                                has_error = false;
-                                error_message = null;
-                            }}
-                        }} else if (conditional instanceof Function) {{
-                            const validation_failed = conditional(value)
-                            if (validation_failed) {{
-                                has_error = true;
-                                error_message = "{self.hook_form_item.validator.get("validation_fail_message", "Enter valid value.") if self.hook_form_item is not None else "Enter valid value."}";
-                            }} else {{
-                                has_error = false;
-                                error_message = null;
-                            }}
-                        }} else {{
+                                error_message = constraintCheck.message;
+                            } else {
+                                const ruleCheck = ruleChecker(value, rules)
+                                if (ruleCheck.failed) {
+                                    has_error = true;
+                                    error_message = ruleCheck.message;
+                                } else {
+                                    has_error = false;
+                                    error_message = null;
+                                }
+                            }
+                        } else {
                             has_error = false;
                             error_message = null;
-                        }}
-                    }}""",
+                        }
+                    }""",
                     seq_type="definition",
                 ),
                 "getHasError()": Statement(
@@ -281,25 +337,50 @@ class FormControl(Div):
                         if self.hook_form_item.required is not None:
                             update_attributes["required"] = self.hook_form_item.required
 
+                        validation_config = AlpineJSData(
+                            data={
+                                "rules": Statement(
+                                    f"""[{
+                                        ",".join(
+                                            [
+                                                "{"
+                                                f'''test: {rule.get("test", "''")},'''
+                                                f'''message: {f'"{rule["message"]}"' if rule.get("message") else "null"}'''
+                                                "}"
+                                                for rule in self.hook_form_item.validator.get(
+                                                    "validation_rules", []
+                                                )
+                                            ]
+                                        )
+                                    }]""",
+                                    seq_type="assignment",
+                                ),
+                                "constraints": Statement(
+                                    f"""{{ {
+                                        ",".join(
+                                            [
+                                                f"{constraint_type}: "
+                                                "{"
+                                                f'''value: {constraint.get("value", "''")},'''
+                                                f'''message: {f"'{constraint['message']}'" if constraint.get("message") else "null"}'''
+                                                "}"
+                                                for constraint_type, constraint in self.hook_form_item.constraints.items()
+                                            ]
+                                        )
+                                    } }}""",
+                                    seq_type="assignment",
+                                ),
+                            },
+                            directive="x-data",
+                        )
+
                         update_attributes[
                             self.hook_form_item.validator["validation_trigger"]
-                        ] = f"""runValidation({
+                        ] = f"runValidation({
                             self.hook_form_item.validator.get(
-                                "value_to_validate", "$event.target.value"
+                                'value_to_validate', '$event.target.value'
                             )
-                        }, {
-                            self.hook_form_item.validator.get(
-                                "validation_pattern", "''"
-                            )
-                        }, {
-                            self.hook_form_item.constraints.get(
-                                "max_length", "undefined"
-                            )
-                        }, {
-                            self.hook_form_item.constraints.get(
-                                "min_length", "undefined"
-                            )
-                        })"""
+                        }, {validation_config})"
 
                         if isinstance(child, PyInput):
                             if self.hook_form_item.constraints.get("type") == "text":
