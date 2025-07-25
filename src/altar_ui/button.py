@@ -38,11 +38,9 @@ class Button(PyButton):
         **attributes: Unpack[PyButtonAttributes],
     ):
         base_class_attribute = "inline-flex gap-2 justify-center items-center font-medium text-sm whitespace-nowrap rounded-md outline-none transition-all [&_svg:not([class*='size-'])]:size-4 shrink-0 aria-invalid:ring-destructive/20 aria-invalid:border-destructive dark:aria-invalid:ring-destructive/40 disabled:opacity-50 disabled:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] [&_svg]:pointer-events-none [&_svg]:shrink-0"
-        if variant is None:
-            variant_class_attribute = ""
-        else:
-            variant_class_attribute = ButtonVariant[variant]
         size_class_attribute = ButtonSize[size]
+        variant_class_attribute = ButtonVariant[variant] if variant is not None else ""
+
         class_attribute = attributes.pop("_class", "")
 
         data_slot = attributes.pop("data_slot", "button")

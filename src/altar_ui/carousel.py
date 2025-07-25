@@ -59,7 +59,7 @@ class CarouselContent(Div):
         self.forwarded_class_attribute = attributes.pop("_class", "")
         self.forwarded_attributes = attributes
 
-        super().__init__(_class="overflow-hidden", **attributes)
+        super().__init__(_class="overflow-hidden")
 
     def __call__(self, *children: tuple) -> Self:
         forwarded_children = []
