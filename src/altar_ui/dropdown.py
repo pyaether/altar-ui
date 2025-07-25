@@ -9,6 +9,7 @@ from aether.tags.html import (
 from aether.tags.html import Div, DivAttributes
 
 from .button import Button
+from .passthrough import Passthrough
 
 try:
     from typing import Unpack
@@ -31,6 +32,7 @@ class DropdownMenu(Div):
 
         super().__init__(
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
+            data_slot="dropdown-menu",
             **{"@keydown.escape.window": "isOpen = false"},
             **attributes,
         )
@@ -43,6 +45,7 @@ class DropdownMenuTrigger(Button):
             "default", "destructive", "outline", "secondary", "ghost", "link"
         ] = "default",
         size: Literal["default", "sm", "lg", "icon"] = "default",
+        pass_through: bool = False,
         **attributes: Unpack[PyButtonAttributes],
     ):
         super().__init__(
@@ -60,6 +63,15 @@ class DropdownMenuTrigger(Button):
             },
             **attributes,
         )
+
+        self.pass_through = pass_through
+
+    def __call__(self, *children: tuple) -> Self | Passthrough:
+        if self.pass_through:
+            passthrough_element = Passthrough(**self.attributes)
+            return passthrough_element(*children)
+        else:
+            return super().__call__(*children)
 
 
 class DropdownMenuContent(Div):
