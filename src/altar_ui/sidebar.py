@@ -146,7 +146,7 @@ class Sidebar(Div):
         data_variant_class_attribute = (
             "group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)] group-data-[side=left]:border-r group-data-[side=right]:border-l"
             if variant == "sidebar"
-            else "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+var(--spacing-4)+2px)]"
+            else "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
         )
 
         self.forwarded_base_class_attribute = (
@@ -203,12 +203,10 @@ class Sidebar(Div):
                     Aside(
                         data_slot="sidebar-container",
                         _class=tw_merge(
-                            self.forwarded_class_attribute,
-                            f"fixed top-0 bottom-0 z-50 flex h-full w-[var(--sidebar-width)] flex-col border-outline bg-sidebar p-0 text-sidebar-foreground transition-transform duration-300 {
-                                'left-0 border-r'
-                                if self.sidebar_side == 'left'
-                                else 'right-0 border-l'
-                            }",
+                            "fixed top-0 bottom-0 z-50 flex h-full w-[var(--sidebar-width)] flex-col border-outline bg-sidebar text-sidebar-foreground p-0 [&>button]:hidden transition-transform duration-300",
+                            "left-0 border-r"
+                            if self.sidebar_side == "left"
+                            else "right-0 border-l",
                         ),
                         **{
                             ":class": f"""{{ 'translate-x-0': isSidebarForSmallScreenViewportOpen, '{"-translate-x-full" if self.sidebar_side == "left" else "translate-x-full"}': !isSidebarForSmallScreenViewportOpen }}"""
@@ -216,7 +214,10 @@ class Sidebar(Div):
                         **self.forwarded_attributes,
                     )(
                         Div(
-                            _class="flex flex-col w-full h-full",
+                            _class=tw_merge(
+                                "flex flex-col w-full h-full",
+                                self.forwarded_class_attribute,
+                            ),
                             data_sidebar="sidebar",
                             data_slot="sidebar-inner",
                         )(*forwarded_children)
@@ -227,13 +228,17 @@ class Sidebar(Div):
                 Div()(
                     Div(
                         data_slot="sidebar-gap",
-                        _class=f"relative w-[var(--sidebar-width)] bg-transparent transition-[width] duration-200 ease-linear group-data-[collapsible=offcanvas]:w-0 group-data-[side=right]:rotate-180 {'group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)]' if self.sidebar_variant == 'sidebar' else 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+var(--spacing-4))]'}",
+                        _class=tw_merge(
+                            "relative w-[var(--sidebar-width)] bg-transparent transition-[width] duration-200 ease-linear group-data-[collapsible=offcanvas]:w-0 group-data-[side=right]:rotate-180",
+                            "group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)]"
+                            if self.sidebar_variant == "sidebar"
+                            else "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]",
+                        ),
                     )(),
                     Div(
                         data_slot="sidebar-container",
                         _class=tw_merge(
                             "fixed inset-y-0 z-10 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] duration-200 ease-linear md:flex",
-                            self.forwarded_class_attribute,
                             self.forwarded_base_class_attribute,
                         ),
                         **self.forwarded_attributes,
@@ -241,7 +246,10 @@ class Sidebar(Div):
                         Div(
                             data_sidebar="sidebar",
                             data_slot="sidebar-inner",
-                            _class="flex flex-col w-full h-full bg-sidebar group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm",
+                            _class=tw_merge(
+                                "flex flex-col w-full h-full bg-sidebar group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm",
+                                self.forwarded_class_attribute,
+                            ),
                         )(*forwarded_children)
                     ),
                 )
@@ -253,7 +261,9 @@ class Sidebar(Div):
 
 class SidebarHeader(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "flex flex-col gap-2 p-2"
+        base_class_attribute = (
+            "flex flex-col gap-2 p-2 group-data-[collapsible=icon]:overflow-hidden"
+        )
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -431,7 +441,7 @@ class SidebarMenuButton(PyButton):
         size: Literal["default", "sm", "lg"] = "default",
         **attributes: Unpack[PyButtonAttributes],
     ):
-        base_class_attribute = "flex overflow-hidden gap-2 items-center p-2 w-full text-left text-sm rounded-md outline-hidden ring-sidebar-ring transition-[width,height,padding] peer/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate disabled:opacity-50 disabled:pointer-events-none hover:text-sidebar-accent-foreground hover:bg-sidebar-accent focus-visible:ring-2 active:text-sidebar-accent-foreground active:bg-sidebar-accent [&>svg]:size-4 [&>svg]:shrink-0"
+        base_class_attribute = "flex overflow-hidden gap-2 items-center p-2 w-full text-left text-sm rounded-md outline-hidden ring-sidebar-ring transition-[width,height,padding] peer/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active]:bg-sidebar-accent data-[active]:font-medium data-[active]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate disabled:opacity-50 disabled:pointer-events-none hover:text-sidebar-accent-foreground hover:bg-sidebar-accent focus-visible:ring-2 active:text-sidebar-accent-foreground active:bg-sidebar-accent [&>svg]:size-4 [&>svg]:shrink-0"
 
         variant_class_attribute = SidebarMenuButtonVariant[variant]
         size_class_attribute = SidebarMenuButtonSize[size]

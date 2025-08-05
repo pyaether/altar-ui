@@ -2,7 +2,7 @@ from collections.abc import Generator, Iterable
 from typing import Literal, Self
 
 from aether import BaseWebElement
-from aether.plugins.alpinejs import AlpineJSData
+from aether.plugins.alpinejs import AlpineJSData, alpine_js_data_merge
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import H2, Div, DivAttributes, HAttributes, P, PAttributes, Span
 from aether.tags.html import Button as PyButton
@@ -19,8 +19,11 @@ except ImportError:
 
 class Dialog(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
+        base_x_data_attribute = AlpineJSData(data={"modalIsOpen": False})
+        x_data_attribute = attributes.pop("x_data", None)
+
         super().__init__(
-            x_data=AlpineJSData(data={"modalIsOpen": False}),
+            x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             data_slot="dialog",
             **attributes,
         )
@@ -51,7 +54,7 @@ class DialogClose(PyButton):
             type="button",
             data_slot="dialog-close",
             **{
-                "@click": "modalIsOpen = false",
+                "@click": "$dispatch('reset-form-data'); modalIsOpen = false",
                 ":class": "{ 'bg-accent': modalIsOpen, 'text-muted-foreground': modalIsOpen }",
             },
             **attributes,
@@ -167,7 +170,9 @@ class DialogFooter(Div):
                     # If a child has a `@click.close` attribute, close the dialog when it's clicked
                     should_close = child.attributes.pop("@click.close", False)
                     if should_close:
-                        child.attributes["@click"] = "modalIsOpen = false"
+                        child.attributes["@click"] = (
+                            "$dispatch('reset-form-data'); modalIsOpen = false"
+                        )
                 self.children.append(child)
             elif isinstance(child, Generator):
                 self.children.extend(list(child))
