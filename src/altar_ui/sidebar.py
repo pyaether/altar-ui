@@ -16,7 +16,6 @@ from aether.tags.html import (
     Main,
     Nav,
     Span,
-    Template,
     Ul,
     UlAttributes,
 )
@@ -74,13 +73,13 @@ class SidebarProvider(Div):
 
         super().__init__(
             data_slot="sidebar-wrapper",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             **{"x-resize.window": "smallScreenViewport = window.innerWidth < 768"},
             **attributes,
         )
 
-    def __call__(self, *children: tuple) -> Self:
+    def __call__(self, *children: BaseWebElement) -> Self:
         allowed_first_child_types = (Sidebar,)
         allowed_second_child_types = (Div, Main)
 
@@ -108,7 +107,7 @@ class SidebarTrigger(Button):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             type="button",
             variant="ghost",
             size="icon",
@@ -189,7 +188,7 @@ class Sidebar(Div):
                 forwarded_children.extend(child)
 
         self.children = [
-            Template(x_if="smallScreenViewport")(
+            Div(x_show="smallScreenViewport")(
                 Div(x_show="isSidebarForSmallScreenViewportOpen", x_cloak=True)(
                     Div(
                         _class="fixed inset-0 z-40 bg-sidebar-foreground/50 backdrop-blur-sm",
@@ -224,7 +223,7 @@ class Sidebar(Div):
                     ),
                 )
             ),
-            Template(x_if="!smallScreenViewport")(
+            Div(x_show="!smallScreenViewport")(
                 Div()(
                     Div(
                         data_slot="sidebar-gap",
@@ -235,7 +234,7 @@ class Sidebar(Div):
                             else "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]",
                         ),
                     )(),
-                    Div(
+                    Aside(
                         data_slot="sidebar-container",
                         _class=tw_merge(
                             "fixed inset-y-0 z-10 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] duration-200 ease-linear md:flex",
@@ -267,7 +266,7 @@ class SidebarHeader(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="sidebar-header",
             data_sidebar="header",
             **attributes,
@@ -276,11 +275,17 @@ class SidebarHeader(Div):
 
 class SidebarContent(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
+        base_x_data_attribute = AlpineJSData(
+            data={"currentActiveMenuItem": None}, directive="x-data"
+        )
         base_class_attribute = "flex flex-1 flex-col overflow-auto gap-2 min-h-0 group-data-[collapsible=icon]:overflow-hidden"
+
+        x_data_attribute = attributes.pop("x_data", None)
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
+            x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             data_slot="sidebar-content",
             data_sidebar="content",
             **attributes,
@@ -293,7 +298,7 @@ class SidebarFooter(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="sidebar-footer",
             data_sidebar="footer",
             **attributes,
@@ -306,7 +311,7 @@ class SidebarSeparator(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             role="separator",
             aria_orientation="horizontal",
             data_slot="sidebar-separator",
@@ -329,7 +334,7 @@ class SidebarGroup(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="sidebar-group",
             data_sidebar="group",
             **attributes,
@@ -342,7 +347,7 @@ class SidebarGroupLabel(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="sidebar-group-label",
             data_sidebar="group-label",
             **attributes,
@@ -363,7 +368,7 @@ class SidebarGroupContent(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="sidebar-group-content",
             data_sidebar="group-content",
             **attributes,
@@ -376,8 +381,8 @@ class SidebarMenuButtonVariant(StrEnum):
 
 
 class SidebarMenuButtonSize(StrEnum):
-    default = "h-8 text-sm"
-    sm = "h-7 text-xs"
+    default = "h-8 text-sm group-data-[collapsible=icon]:p-2!"
+    sm = "h-7 text-xs group-data-[collapsible=icon]:p-2!"
     lg = "h-12 text-sm group-data-[collapsible=icon]:p-0!"
 
 
@@ -408,11 +413,12 @@ class SidebarMenu(Nav):
         self.children.append(
             Ul(
                 _class=tw_merge(
-                    self.forwarded_class_attribute,
                     self.forwarded_base_class_attribute,
+                    self.forwarded_class_attribute,
                 ),
                 data_slot="sidebar-menu",
                 data_sidebar="menu",
+                **self.forwarded_attributes,
             )(*forwarded_children)
         )
 
@@ -420,12 +426,51 @@ class SidebarMenu(Nav):
 
 
 class SidebarMenuItem(Li):
-    def __init__(self, **attributes: Unpack[LiAttributes]):
+    def __init__(self, is_active: bool = False, **attributes: Unpack[LiAttributes]):
+        if attributes.get("smi_id"):
+            smi_id_attribute = attributes.pop("smi_id")
+        else:
+            smi_id_attribute = "$id('sidebar-menu-item')"
+
+        base_x_data_attribute = AlpineJSData(
+            data={
+                "sidebarMenuItem": Statement(
+                    content=smi_id_attribute, seq_type="assignment"
+                ),
+                "setActive()": Statement(
+                    content="{ currentActiveMenuItem = this.sidebarMenuItem }",
+                    seq_type="definition",
+                ),
+                "isItemActive()": Statement(
+                    content="{ if (currentActiveMenuItem === this.sidebarMenuItem) {return true} else {return null} }",
+                    seq_type="definition",
+                ),
+            },
+            directive="x-data",
+        )
         base_class_attribute = "relative group/menu-item"
+
+        x_data_attribute = attributes.pop("x_data", None)
         class_attribute = attributes.pop("_class", "")
 
+        if is_active:
+            x_data_to_set_item_active = AlpineJSData(
+                data={
+                    "init()": Statement(
+                        content="{ currentActiveMenuItem = this.sidebarMenuItem }",
+                        seq_type="definition",
+                    ),
+                },
+                directive="x-data",
+            )
+
+            base_x_data_attribute = alpine_js_data_merge(
+                base_x_data_attribute, x_data_to_set_item_active
+            )
+
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
+            x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             data_slot="sidebar-menu-item",
             data_sidebar="menu-item",
             **attributes,
@@ -436,12 +481,12 @@ class SidebarMenuButton(PyButton):
     def __init__(
         self,
         pass_through: bool = False,
-        is_active: bool = False,
+        has_active_state: bool = False,
         variant: Literal["default", "outline"] = "default",
         size: Literal["default", "sm", "lg"] = "default",
         **attributes: Unpack[PyButtonAttributes],
     ):
-        base_class_attribute = "flex overflow-hidden gap-2 items-center p-2 w-full text-left text-sm rounded-md outline-hidden ring-sidebar-ring transition-[width,height,padding] peer/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active]:bg-sidebar-accent data-[active]:font-medium data-[active]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate disabled:opacity-50 disabled:pointer-events-none hover:text-sidebar-accent-foreground hover:bg-sidebar-accent focus-visible:ring-2 active:text-sidebar-accent-foreground active:bg-sidebar-accent [&>svg]:size-4 [&>svg]:shrink-0"
+        base_class_attribute = "flex overflow-hidden gap-2 items-center p-2 w-full text-left text-sm rounded-md outline-hidden ring-sidebar-ring transition-[width,height,padding] peer/menu-button group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active]:bg-sidebar-accent data-[active]:font-medium data-[active]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! [&>span:last-child]:truncate disabled:opacity-50 disabled:pointer-events-none hover:text-sidebar-accent-foreground hover:bg-sidebar-accent focus-visible:ring-2 active:text-sidebar-accent-foreground active:bg-sidebar-accent [&>svg]:size-4 [&>svg]:shrink-0"
 
         variant_class_attribute = SidebarMenuButtonVariant[variant]
         size_class_attribute = SidebarMenuButtonSize[size]
@@ -451,14 +496,19 @@ class SidebarMenuButton(PyButton):
 
         super().__init__(
             _class=tw_merge(
+                variant_class_attribute,
+                size_class_attribute,
+                base_class_attribute,
                 class_attribute,
-                f"{base_class_attribute} {variant_class_attribute} {size_class_attribute}",
             ),
             data_slot=data_slot,
             data_size=size,
-            data_active=is_active,
             data_sidebar="menu-button",
-            **{":data-state": "isSidebarForSmallScreenViewportOpen"},
+            **{
+                ":data-state": "isSidebarForSmallScreenViewportOpen",
+                ":data-active": "isItemActive()" if has_active_state else None,
+                "@click": "setActive()" if has_active_state else None,
+            },
             **attributes,
         )
 

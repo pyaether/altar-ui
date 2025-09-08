@@ -1,5 +1,5 @@
 import warnings
-from typing import Self
+from typing import Literal, Self
 
 from aether.plugins.alpinejs import AlpineJSData, Statement, alpine_js_data_merge
 from aether.plugins.tailwindcss import tw_merge
@@ -27,12 +27,33 @@ except ImportError:
 
 
 class Pagination(Nav):
-    def __init__(self, number_of_pages: int, **attributes: Unpack[NavAttributes]):
+    def __init__(
+        self,
+        number_of_pages: int | Statement,
+        current_page_index: int | Statement = 1,
+        **attributes: Unpack[NavAttributes],
+    ):
+        if not isinstance(number_of_pages, int | Statement):
+            warnings.warn(
+                "'number_of_pages' expected to be 'int | Statement'. Defaulting to 1.",
+                UserWarning,
+                stacklevel=2,
+            )
+            number_of_pages = 1
+
+        if not isinstance(current_page_index, int | Statement):
+            warnings.warn(
+                "'current_page_index' expected to be 'int | Statement'. Defaulting to 1.",
+                UserWarning,
+                stacklevel=2,
+            )
+            current_page_index = 1
+
         base_class_attribute = "flex justify-center mx-auto w-full"
         base_x_data_attribute = AlpineJSData(
             data={
                 "numberOfPages": number_of_pages,
-                "currentPageIndex": 1,
+                "currentPageIndex": current_page_index,
                 "previousPage()": Statement(
                     "{ if (this.currentPageIndex > 1) { this.currentPageIndex -= 1 } }",
                     seq_type="definition",
@@ -48,7 +69,7 @@ class Pagination(Nav):
         x_data_attribute = attributes.pop("x_data", None)
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             role="navigation",
             aria_label="pagination",
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
@@ -63,7 +84,7 @@ class PaginationContent(Ul):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="pagination-content",
             **attributes,
         )
@@ -73,8 +94,6 @@ class PaginationItem(Li):
     def __init__(
         self, item_index: int | None = None, **attributes: Unpack[LiAttributes]
     ):
-        class_attribute = attributes.pop("_class", "")
-
         if item_index is not None:
             base_x_data_attribute = AlpineJSData(
                 data={
@@ -93,25 +112,19 @@ class PaginationItem(Li):
             x_data_attribute = attributes.pop("x_data", None)
 
             super().__init__(
-                _class=class_attribute,
                 x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
                 data_slot="pagination-item",
                 **attributes,
             )
         else:
-            super().__init__(
-                _class=class_attribute, data_slot="pagination-item", **attributes
-            )
+            super().__init__(data_slot="pagination-item", **attributes)
 
 
 class PaginationLink(Button):
     def __init__(self, **attributes: Unpack[PyButtonAttributes]):
-        class_attribute = attributes.pop("_class", "")
-
         super().__init__(
             size="icon",
             variant=None,
-            _class=class_attribute,
             data_slot="pagination-link",
             **{
                 "@click": "setActive()",
@@ -124,23 +137,35 @@ class PaginationLink(Button):
 
 
 class PaginationPrevious(Button):
-    def __init__(self, **attributes: Unpack[PyButtonAttributes]):
+    def __init__(
+        self,
+        size: Literal["default", "icon"] = "default",
+        **attributes: Unpack[PyButtonAttributes],
+    ):
         base_class_attribute = "gap-1 px-2.5 sm:pl-2.5"
         class_attribute = attributes.pop("_class", "")
+
+        base_x_on_click = "previousPage();"
+        x_on_click = attributes.pop("@click", "")
 
         super().__init__(
             aria_label="Go to previous page",
             size="default",
             type="button",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **{
-                "@click": "previousPage()",
+                "@click": base_x_on_click + x_on_click,
                 ":disabled": "currentPageIndex === 1",
             },
             **attributes,
         )
 
-        self.children = [ChevronLeftIcon(), Span(_class="hidden sm:block")("Previous")]
+        self.children = [
+            ChevronLeftIcon(),
+            Span(_class="hidden sm:block" if size == "default" else "sr-only")(
+                "Previous"
+            ),
+        ]
 
     def __call__(self, *_children: tuple) -> Self:
         warnings.warn(
@@ -153,23 +178,33 @@ class PaginationPrevious(Button):
 
 
 class PaginationNext(Button):
-    def __init__(self, **attributes: Unpack[PyButtonAttributes]):
+    def __init__(
+        self,
+        size: Literal["default", "icon"] = "default",
+        **attributes: Unpack[PyButtonAttributes],
+    ):
         base_class_attribute = "gap-1 px-2.5 sm:pr-2.5"
         class_attribute = attributes.pop("_class", "")
+
+        base_x_on_click = "nextPage();"
+        x_on_click = attributes.pop("@click", "")
 
         super().__init__(
             aria_label="Go to next page",
             size="default",
             type="button",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **{
-                "@click": "nextPage()",
+                "@click": base_x_on_click + x_on_click,
                 ":disabled": "currentPageIndex === numberOfPages",
             },
             **attributes,
         )
 
-        self.children = [Span(_class="hidden sm:block")("Next"), ChevronRightIcon()]
+        self.children = [
+            Span(_class="hidden sm:block" if size == "default" else "sr-only")("Next"),
+            ChevronRightIcon(),
+        ]
 
     def __call__(self, *_children: tuple) -> Self:
         warnings.warn(
@@ -189,7 +224,7 @@ class PaginationEllipsis(Span):
         super().__init__(
             aria_hidden=True,
             data_slot="pagination-ellipsis",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **attributes,
         )
 

@@ -31,8 +31,7 @@ class Badge(Span):
 
         super().__init__(
             _class=tw_merge(
-                class_attribute,
-                f"{variant_class_attribute} {base_class_attribute}",
+                variant_class_attribute, base_class_attribute, class_attribute
             ),
             data_slot="badge",
             **attributes,

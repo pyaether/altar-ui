@@ -35,7 +35,7 @@ class BreadcrumbList(Ol):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="breadcrumb-list",
             **attributes,
         )
@@ -47,7 +47,7 @@ class BreadcrumbItem(Li):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="breadcrumb-item",
             **attributes,
         )
@@ -61,7 +61,7 @@ class BreadcrumbLink(A):
         data_slot = attributes.pop("data_slot", "breadcrumb-link")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot=data_slot,
             **attributes,
         )
@@ -81,7 +81,7 @@ class BreadcrumbPage(Span):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="breadcrumb-page",
             role="link",
             aria_disabled="true",
@@ -96,7 +96,7 @@ class BreadcrumbSeparator(Li):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="breadcrumb-separator",
             role="presentation",
             aria_hidden="true",
@@ -130,7 +130,7 @@ class BreadcrumbEllipsis(Span):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="breadcrumb-ellipsis",
             role="presentation",
             aria_hidden="true",

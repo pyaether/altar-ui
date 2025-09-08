@@ -47,8 +47,10 @@ class Button(PyButton):
 
         super().__init__(
             _class=tw_merge(
+                variant_class_attribute,
+                size_class_attribute,
+                base_class_attribute,
                 class_attribute,
-                f"{variant_class_attribute} {size_class_attribute} {base_class_attribute}",
             ),
             data_slot=data_slot,
             **attributes,
