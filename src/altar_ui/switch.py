@@ -54,7 +54,7 @@ class Switch(Div):
                 disabled=disabled,
                 x_model="checked" if attributes.get("x_modelable") else None,
                 _class=tw_merge(
-                    self.forwarded_class_attribute, forwarded_base_class_attribute
+                    forwarded_base_class_attribute, self.forwarded_class_attribute
                 ),
                 **{":id": forwarded_id_attribute}
                 if "$id" in forwarded_id_attribute

@@ -85,7 +85,7 @@ class AccordionItem(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             data_slot="accordion-item",
             **attributes,
@@ -127,7 +127,7 @@ class AccordionTrigger(Div):
         self.children.append(
             PyButton(
                 _class=tw_merge(
-                    self.forwarded_class_attribute, self.forwarded_base_class_attribute
+                    self.forwarded_base_class_attribute, self.forwarded_class_attribute
                 ),
                 data_slot="accordion-trigger",
                 **{
@@ -193,7 +193,7 @@ class AccordionContent(Div):
         self.children.append(
             Div(
                 _class=tw_merge(
-                    self.forwarded_class_attribute, self.forwarded_base_class_attribute
+                    self.forwarded_base_class_attribute, self.forwarded_class_attribute
                 ),
                 **self.forwarded_attributes,
             )(*forwarded_children)

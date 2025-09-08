@@ -22,7 +22,7 @@ class Avatar(Span):
         x_data_attribute = attributes.pop("x_data", None)
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             data_slot="avatar",
             **attributes,
@@ -47,7 +47,7 @@ class AvatarImage(Img):
 
         super().__init__(
             data_slot="avatar-image",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_init=alpine_js_data_merge(base_x_init_attribute, x_init_attribute),
             x_cloak=True,
             x_show="status === 'loaded'",
@@ -65,7 +65,7 @@ class AvatarFallback(Span):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="avatar-fallback",
             x_cloak=True,
             x_show="status !== 'loaded'",

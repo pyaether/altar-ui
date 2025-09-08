@@ -18,7 +18,7 @@ class Label(PyLabel):
         data_slot = attributes.pop("data_slot", "label")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot=data_slot,
             **attributes,
         )

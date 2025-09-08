@@ -44,7 +44,7 @@ class Carousel(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             role="region",
             aria_roledescription="carousel",
@@ -80,8 +80,8 @@ class CarouselContent(Div):
         self.children.append(
             Div(
                 _class=tw_merge(
-                    self.forwarded_class_attribute,
                     self.forwarded_base_class_attribute,
+                    self.forwarded_class_attribute,
                 ),
                 **{
                     ":class": "{ '-ml-4': carouselOrientation === 'horizontal', '-mt-4': carouselOrientation !== 'horizontal', 'flex-col': carouselOrientation !== 'horizontal' }"
@@ -98,7 +98,7 @@ class CarouselItem(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_show=f"currentSlideIndex === {item_index + 1}",
             **{
                 "x-transition:enter": "animate-in zoom-in-95 fade-in-0",
@@ -127,7 +127,7 @@ class CarouselPrevious(Button):
         super().__init__(
             variant=variant,
             size=size,
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **{
                 ":class": "{ 'top-1/2': carouselOrientation === 'horizontal', '-left-12': carouselOrientation === 'horizontal', '-translate-y-1/2': carouselOrientation === 'horizontal', '-top-12': carouselOrientation !== 'horizontal', 'left-1/2': carouselOrientation !== 'horizontal', '-translate-x-1/2': carouselOrientation !== 'horizontal', 'rotate-90': carouselOrientation !== 'horizontal' }",
                 "@click": "previousSlide()",
@@ -158,7 +158,7 @@ class CarouselNext(Button):
         super().__init__(
             variant=variant,
             size=size,
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **{
                 "@click": "nextSlide()",
                 ":class": "{ 'top-1/2': carouselOrientation === 'horizontal', '-right-12': carouselOrientation === 'horizontal', '-translate-y-1/2': carouselOrientation === 'horizontal', '-bottom-12': carouselOrientation !== 'horizontal', 'left-1/2': carouselOrientation !== 'horizontal', '-translate-x-1/2': carouselOrientation !== 'horizontal', 'rotate-90': carouselOrientation !== 'horizontal' }",

@@ -13,7 +13,7 @@ class Card(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="card",
             **attributes,
         )
@@ -25,7 +25,7 @@ class CardHeader(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="card-header",
             **attributes,
         )
@@ -37,7 +37,7 @@ class CardTitle(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="card-title",
             **attributes,
         )
@@ -49,7 +49,7 @@ class CardDescription(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="card-description",
             **attributes,
         )
@@ -63,7 +63,7 @@ class CardAction(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="card-action",
             **attributes,
         )
@@ -75,7 +75,7 @@ class CardContent(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="card-content",
             **attributes,
         )
@@ -87,7 +87,7 @@ class CardFooter(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="card-footer",
             **attributes,
         )

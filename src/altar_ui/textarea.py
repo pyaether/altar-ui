@@ -42,7 +42,7 @@ class Textarea(PyTextarea):
             attributes["@input"] = "resize()"
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="textarea",
             **attributes,
         )

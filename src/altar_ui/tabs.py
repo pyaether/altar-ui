@@ -37,7 +37,7 @@ class Tabs(Div):
 
         super().__init__(
             data_slot="tabs",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             **attributes,
         )
@@ -50,7 +50,7 @@ class TabsList(Div):
 
         super().__init__(
             data_slot="tabs-list",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             role="tablist",
             **{
                 "@keydown.right.prevent": "$focus.wrap().next()",
@@ -99,7 +99,7 @@ class TabsTrigger(PyButton):
 
         super().__init__(
             data_slot="tabs-trigger",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             value=value,
             **{":id": id_attribute}
             if "$id" in id_attribute
@@ -130,7 +130,7 @@ class TabsContent(Div):
 
         super().__init__(
             data_slot="tabs-content",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_show=f"isTabActive('{value}')",
             **{":id": id_attribute}
             if "$id" in id_attribute

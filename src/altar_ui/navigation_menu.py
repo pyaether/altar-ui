@@ -43,7 +43,7 @@ class NavigationMenu(Nav):
             x_data_attribute = attributes.pop("x_data", None)
             super().__init__(
                 data_slot="navigation-menu",
-                _class=tw_merge(class_attribute, base_class_attribute),
+                _class=tw_merge(base_class_attribute, class_attribute),
                 x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
                 **{"@click.away": "closeMobileMenu()"},
                 **attributes,
@@ -51,7 +51,7 @@ class NavigationMenu(Nav):
         else:
             super().__init__(
                 data_slot="navigation-menu",
-                _class=tw_merge(class_attribute, base_class_attribute),
+                _class=tw_merge(base_class_attribute, class_attribute),
                 **attributes,
             )
 
@@ -80,7 +80,7 @@ class NavigationMenuList(Div):
 
         super().__init__(
             data_slot="navigation-menu-list",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             **attributes,
         )
@@ -111,7 +111,7 @@ class NavigationMenuItem(Div):
         super().__init__(
             data_slot="navigation-menu-item",
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **{":class": "{ 'pointer-events-none opacity-50': item_disabled }"},
             **attributes,
         )
@@ -124,7 +124,7 @@ class NavigationMenuTrigger(PyButton):
 
         super().__init__(
             data_slot="navigation-menu-trigger",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             type="button",
             role="navigation-menu",
             **{
@@ -165,7 +165,7 @@ class NavigationMenuContent(Div):
             x_cloak=True,
             x_collapse=True,
             _class=tw_merge(
-                class_attribute, f"{base_class_attribute} {base_group_class_attribute}"
+                base_group_class_attribute, base_class_attribute, class_attribute
             ),
             **{
                 "x-transition:enter": "animate-in zoom-in-95 fade-in-0",
@@ -197,12 +197,14 @@ class NavigationMenuLink(A):
 
         super().__init__(
             _class=tw_merge(
+                navigation_menu_trigger_class_attribute,
+                data_active_class_attribute,
+                base_class_attribute,
                 class_attribute,
-                f"{base_class_attribute} {data_active_class_attribute} {navigation_menu_trigger_class_attribute}",
             )
             if as_trigger
             else tw_merge(
-                class_attribute, f"{base_class_attribute} {data_active_class_attribute}"
+                data_active_class_attribute, base_class_attribute, class_attribute
             ),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             **{

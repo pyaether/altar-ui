@@ -37,7 +37,7 @@ class Progress(Div):
         x_data_attribute = attributes.pop("x_data", None)
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             role="progressbar",
             data_slot="progress",

@@ -150,7 +150,7 @@ class FormItem(Div):
         x_init_attribute = attributes.pop("x_init", None)
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             x_init=alpine_js_data_merge(base_x_init_attribute, x_init_attribute),
             x_id="['form-description', 'form-item-id', 'form-message']",
@@ -165,7 +165,7 @@ class FormLabel(Label):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, data_error_class_attribute),
+            _class=tw_merge(data_error_class_attribute, class_attribute),
             data_slot="form-label",
             **{
                 ":data-error": "has_error",
@@ -436,7 +436,7 @@ class FormDescription(P):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="form-description",
             **{
                 ":id": Statement(
@@ -453,7 +453,7 @@ class FormMessage(P):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="form-message",
             x_show="has_error",
             x_text="error_message",

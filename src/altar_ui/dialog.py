@@ -70,7 +70,7 @@ class DialogOverlay(Div):
             x_show="modalIsOpen",
             x_cloak=True,
             data_slot="dialog-overlay",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **{"x-transition.opacity.duration.100ms": True},
             **attributes,
         )
@@ -116,8 +116,8 @@ class DialogContent(Div):
                 Div(
                     data_slot="dialog-content",
                     _class=tw_merge(
-                        self.forwarded_class_attribute,
                         self.forwarded_base_class_attribute,
+                        self.forwarded_class_attribute,
                     ),
                     **{
                         "x-transition:enter": "animate-in zoom-in-95 fade-in-0",
@@ -143,7 +143,7 @@ class DialogHeader(Div):
 
         super().__init__(
             data_slot="dialog-header",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **attributes,
         )
 
@@ -155,7 +155,7 @@ class DialogFooter(Div):
 
         super().__init__(
             data_slot="dialog-footer",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **attributes,
         )
 
@@ -191,7 +191,7 @@ class DialogTitle(H2):
 
         super().__init__(
             data_slot="dialog-title",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **attributes,
         )
 
@@ -203,6 +203,6 @@ class DialogDescription(P):
 
         super().__init__(
             data_slot="dialog-description",
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             **attributes,
         )

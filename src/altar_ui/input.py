@@ -38,7 +38,7 @@ class Input(PyInput):
         data_slot = attributes.pop("data_slot", "input")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot=data_slot,
             **attributes,
         )
@@ -72,7 +72,7 @@ class PasswordInput(Div):
                     type="button",
                     size="icon",
                     variant="ghost",
-                    _class="absolute top-1/2 right-1 w-6 h-6 text-muted-foreground rounded-md -translate-y-1/2",
+                    _class="absolute right-1.5 w-6 h-6 text-muted-foreground rounded-md",
                     **{"@click": "showPassword = !showPassword"},
                 )(
                     EyeOffIcon(x_show="!showPassword", _class="w-4 h-4"),

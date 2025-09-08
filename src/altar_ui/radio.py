@@ -26,7 +26,7 @@ class RadioGroup(Div):
         x_data_attribute = attributes.pop("x_data", None)
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             data_slot="radio-group",
             x_model="selectedRadioItem" if attributes.get("x_modelable") else None,
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
@@ -58,7 +58,7 @@ class RadioGroupItem(Div):
                 data_slot="radio-group-item",
                 name=forwarded_name_attribute,
                 _class=tw_merge(
-                    self.forwarded_class_attribute, forwarded_base_class_attribute
+                    forwarded_base_class_attribute, self.forwarded_class_attribute
                 ),
                 x_model="selectedRadioItem",
                 **{":id": forwarded_id_attribute}

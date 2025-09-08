@@ -23,8 +23,9 @@ class Separator(Div):
 
         super().__init__(
             _class=tw_merge(
+                data_orientation_class_attribute,
+                base_class_attribute,
                 class_attribute,
-                f"{base_class_attribute} {data_orientation_class_attribute}",
             ),
             data_slot="separator-root",
             data_orientation=orientation,

@@ -16,6 +16,8 @@ try:
 except ImportError:
     from typing_extensions import Unpack  # noqa: UP035
 
+# Requires Anchor plugin
+
 
 class DropdownMenu(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
@@ -94,7 +96,7 @@ class DropdownMenuContent(Div):
             data_side=side_position,
             data_slot="dropdown-menu-content",
             _class=tw_merge(
-                class_attribute, f"{base_class_attribute} {data_side_class_attribute}"
+                data_side_class_attribute, base_class_attribute, class_attribute
             ),
             **{
                 "@click.outside": "isOpen = false",
@@ -131,8 +133,11 @@ class DropdownMenuItem(Div):
 
         super().__init__(
             _class=tw_merge(
+                data_disabled_class_attribute,
+                data_inset_class_attribute,
+                data_variant_class_attribute,
+                base_class_attribute,
                 class_attribute,
-                f"{base_class_attribute} {data_disabled_class_attribute} {data_inset_class_attribute} {data_variant_class_attribute}",
             ),
             role="menuitem",
             data_disabled=disabled,
@@ -151,7 +156,7 @@ class DropdownMenuLabel(Div):
 
         super().__init__(
             _class=tw_merge(
-                class_attribute, f"{base_class_attribute} {data_inset_class_attribute}"
+                data_inset_class_attribute, base_class_attribute, class_attribute
             ),
             data_inset=inset,
             data_slot="dropdown-menu-label",
@@ -165,7 +170,7 @@ class DropdownMenuSeparator(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(class_attribute, base_class_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
             role="separator",
             aria_orientation="horizontal",
             data_slot="dropdown-menu-separator",

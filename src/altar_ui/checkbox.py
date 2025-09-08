@@ -35,7 +35,7 @@ class Checkbox(Div):
                 type="checkbox",
                 data_slot="checkbox",
                 _class=tw_merge(
-                    self.forwarded_class_attribute, forwarded_base_class_attribute
+                    forwarded_base_class_attribute, self.forwarded_class_attribute
                 ),
                 **{":id": forwarded_id_attribute}
                 if "$id" in forwarded_id_attribute
