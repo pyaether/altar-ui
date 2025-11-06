@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 
 [[package]]
@@ -233,15 +233,15 @@ wheels = [
 
 [[package]]
 name = "pyaether"
-version = "0.4.3"
+version = "0.4.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/02/70/6ec9e261ca7714224513036849074c3e34e38ab7ab91b5373fa03c96e5b8/pyaether-0.4.3.tar.gz", hash = "sha256:48409ba8a70fb9d1dddf42e44eee55035b04d988de1e25e53beefe1706dde2c7", size = 65635, upload-time = "2025-07-11T00:36:37.183Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/31/ff/eaa62f5e3785f64998bd32dc3ddd29c82340e0e8197c7a24d8276db544b3/pyaether-0.4.7.tar.gz", hash = "sha256:9371aeb7d46c976994059a2dfa234ecdbd6fb452b7a4920f27a0b7f66a2901c6", size = 70592, upload-time = "2025-11-06T19:48:36.152Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7f/18/5be0c65f2d3fb1a7b0cc3452cb7f661983fde83330fd021cf3b8107efb1f/pyaether-0.4.3-py3-none-any.whl", hash = "sha256:49fc650b12d11de1b2988693747f3940a50d3bb28d2be919ebf4596715b192ae", size = 109293, upload-time = "2025-07-11T00:36:35.743Z" },
+    { url = "https://files.pythonhosted.org/packages/27/2c/b6d5d7b70cafd1f49a02e33637f02f74b3b16d8bb5e4be96033dc4b20227/pyaether-0.4.7-py3-none-any.whl", hash = "sha256:89e49816c56d5bcb36d57fc6f19d354ccf93dd4ed1e59511e19c93029d6884a1", size = 114569, upload-time = "2025-11-06T19:48:35.05Z" },
 ]
 
 [[package]]
