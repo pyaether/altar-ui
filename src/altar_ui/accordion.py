@@ -1,17 +1,32 @@
-from collections.abc import Generator, Iterable
+"""Accordion
+
+A vertically stacked set of interactive headings that each reveal a section of content.
+
+Composition:
+    Use the following composition to build an Accordion:
+
+    Accordion
+    ├── AccordionItem
+    │   ├── AccordionTrigger
+    │   └── AccordionContent
+    └── AccordionItem
+        ├── AccordionTrigger
+        └── AccordionContent
+"""
+
 from enum import StrEnum
 from typing import Literal, Self
 
-from aether import BaseWebElement
 from aether.plugins.alpinejs import AlpineJSData, Statement, alpine_js_data_merge
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import (
-    Button as PyButton,
+    Details,
+    DetailsAttributes,
+    Div,
+    DivAttributes,
+    Summary,
+    SummaryAttributes,
 )
-from aether.tags.html import (
-    ButtonAttributes as PyButtonAttributes,
-)
-from aether.tags.html import Div, DivAttributes
 from altar_icons import ChevronDownIcon
 
 try:
@@ -58,13 +73,12 @@ class Accordion(Div):
 
         super().__init__(
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
-            data_slot="accordion",
             **attributes,
         )
 
 
-class AccordionItem(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
+class AccordionItem(Details):
+    def __init__(self, **attributes: Unpack[DetailsAttributes]):
         if attributes.get("id"):
             id_attribute = attributes.pop("id")
         elif attributes.get(":id"):
@@ -72,7 +86,10 @@ class AccordionItem(Div):
         else:
             id_attribute = "$id('accordion-item')"
 
-        base_class_attribute = "border-b last:border-b-0"
+        closed_state_class_attributes = "[&::details-content]:[block-size:0] [&::details-content]:block [&::details-content]:opacity-0 [&::details-content]:transition-discrete [&::details-content]:transition-all"
+        open_state_class_attributes = "open:[&::details-content]:[block-size:auto] open:[&::details-content]:[block-size:calc-size(auto,size)] open:[&::details-content]:opacity-100"
+
+        base_class_attribute = "border-b group last:border-b-0"
         base_x_data_attribute = AlpineJSData(
             data={
                 "item_id": Statement(content=id_attribute, seq_type="assignment")
@@ -85,64 +102,36 @@ class AccordionItem(Div):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
+            _class=tw_merge(
+                closed_state_class_attributes,
+                open_state_class_attributes,
+                base_class_attribute,
+                class_attribute,
+            ),
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
-            data_slot="accordion-item",
+            **{":open": "isActive(item_id)"},
             **attributes,
         )
 
 
-class AccordionTrigger(Div):
-    def __init__(self, **attributes: Unpack[PyButtonAttributes]):
-        self.forwarded_base_class_attribute = "flex flex-1 gap-4 justify-between items-start py-4 font-medium text-left text-sm rounded-md outline-none transition-all disabled:opacity-50 disabled:pointer-events-none hover:underline focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-        self.forwarded_class_attribute = attributes.pop("_class", "")
+class AccordionTrigger(Summary):
+    def __init__(self, **attributes: Unpack[SummaryAttributes]):
+        base_class_attribute = "outline-none transition-all justify-between rounded-md items-center flex-1 gap-4 flex py-4 w-full focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+        class_attribute = attributes.pop("_class", "")
 
-        if attributes.get("id"):
-            self.forwarded_id_attribute = attributes.pop("id")
-        elif attributes.get(":id"):
-            self.forwarded_id_attribute = attributes.pop(":id")
-        else:
-            self.forwarded_id_attribute = "$id('accordion-trigger')"
-
-        self.forwarded_attributes = attributes
-
-        super().__init__(_class="flex")
+        super().__init__(
+            _class=tw_merge(base_class_attribute, class_attribute),
+            **{"@click.prevent": "toggleActiveAccordionState(item_id)"},
+            **attributes,
+        )
 
     def __call__(self, *children: tuple) -> Self:
-        forwarded_children = []
-        for child in children:
-            if (
-                isinstance(child, str)
-                or isinstance(child, BaseWebElement)
-                or not isinstance(child, Iterable)
-            ):
-                forwarded_children.append(child)
-            elif isinstance(child, Generator):
-                forwarded_children.extend(list(child))
-            elif isinstance(child, type(None)):
-                continue
-            else:
-                forwarded_children.extend(child)
+        super().__call__(*children)
 
         self.children.append(
-            PyButton(
-                _class=tw_merge(
-                    self.forwarded_base_class_attribute, self.forwarded_class_attribute
-                ),
-                data_slot="accordion-trigger",
-                **{
-                    "@click": "toggleActiveAccordionState(item_id)",
-                    ":aria-controls": "item_id",
-                    ":id": f"`${{item_id}}-${self.forwarded_id_attribute}`",
-                },
-                **self.forwarded_attributes,
-            )(
-                *forwarded_children,
-                ChevronDownIcon(
-                    _class="text-muted-foreground transition-transform duration-200 translate-y-0.5 pointer-events-none size-4 shrink-0",
-                    **{":class": "{ 'rotate-180': isActive(item_id) }"},
-                ),
-            ),
+            ChevronDownIcon(
+                _class="pointer-events-none translate-y-0.5 transition-transform duration-200 shrink-0 text-muted-foreground size-4 group-open:rotate-180"
+            )
         )
 
         return self
@@ -150,53 +139,10 @@ class AccordionTrigger(Div):
 
 class AccordionContent(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        if attributes.get("id"):
-            id_attribute = attributes.pop("id")
-        elif attributes.get(":id"):
-            id_attribute = attributes.pop(":id")
-        else:
-            id_attribute = "$id('accordion-content')"
-
-        self.forwarded_base_class_attribute = "pt-0 pb-4"
-        self.forwarded_class_attribute = attributes.pop("_class", "")
-        self.forwarded_attributes = attributes
+        base_class_attribute = "pb-4"
+        class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class="overflow-hidden text-sm",
-            x_show="isActive(item_id)",
-            x_cloak=True,
-            x_collapse=True,
-            role="region",
-            data_slot="accordion-content",
-            **{
-                ":aria_labelledby": "item_id",
-                ":id": f"`${{item_id}}-${id_attribute}`",
-            },
+            _class=tw_merge(base_class_attribute, class_attribute),
+            **attributes,
         )
-
-    def __call__(self, *children: tuple) -> Self:
-        forwarded_children = []
-        for child in children:
-            if (
-                isinstance(child, str)
-                or isinstance(child, BaseWebElement)
-                or not isinstance(child, Iterable)
-            ):
-                forwarded_children.append(child)
-            elif isinstance(child, Generator):
-                forwarded_children.extend(list(child))
-            elif isinstance(child, type(None)):
-                continue
-            else:
-                forwarded_children.extend(child)
-
-        self.children.append(
-            Div(
-                _class=tw_merge(
-                    self.forwarded_base_class_attribute, self.forwarded_class_attribute
-                ),
-                **self.forwarded_attributes,
-            )(*forwarded_children)
-        )
-
-        return self

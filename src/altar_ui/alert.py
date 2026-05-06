@@ -1,10 +1,27 @@
-from collections.abc import Generator, Iterable
-from enum import StrEnum
-from typing import Literal, Self
+"""Alert
 
-from aether import BaseWebElement
+Displays a callout for user attention.
+
+Composition:
+    Use the following composition to build an Alert:
+
+    Alert
+    ├── AlertTitle
+    └── AlertDescription
+"""
+
+from enum import StrEnum
+from typing import Literal
+
 from aether.plugins.tailwindcss import tw_merge
-from aether.tags.html import Div, DivAttributes, P
+from aether.tags.html import (
+    H5,
+    Div,
+    DivAttributes,
+    HAttributes,
+    Section,
+    SectionAttributes,
+)
 
 try:
     from typing import Unpack
@@ -14,7 +31,12 @@ except ImportError:
 
 class AlertVariant(StrEnum):
     default = "bg-card text-card-foreground"
-    destructive = "text-destructive bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-destructive/90"
+    destructive = "text-destructive bg-card [&>svg]:text-current"
+
+
+class AlertDescriptionVariant(StrEnum):
+    default = "text-muted-foreground"
+    destructive = "text-destructive"
 
 
 class Alert(Div):
@@ -23,7 +45,7 @@ class Alert(Div):
         variant: Literal["default", "destructive"] = "default",
         **attributes: Unpack[DivAttributes],
     ):
-        base_class_attribute = "grid grid-cols-[0_1fr] relative gap-y-0.5 items-start px-4 py-3 w-full text-sm rounded-lg border has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:text-current [&>svg]:translate-y-0.5 [&>svg]:size-4"
+        base_class_attribute = "grid-cols-[0_1fr] relative rounded-lg border items-start text-sm grid gap-y-0.5 px-4 py-3 w-full has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:translate-y-0.5 [&>svg]:text-current [&>svg]:size-4"
         variant_class_attribute = AlertVariant[variant]
         class_attribute = attributes.pop("_class", "")
 
@@ -31,14 +53,13 @@ class Alert(Div):
             _class=tw_merge(
                 variant_class_attribute, base_class_attribute, class_attribute
             ),
-            data_slot="alert",
             role="alert",
             **attributes,
         )
 
 
-class AlertTitle(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
+class AlertTitle(H5):
+    def __init__(self, **attributes: Unpack[HAttributes]):
         base_class_attribute = (
             "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight"
         )
@@ -46,36 +67,23 @@ class AlertTitle(Div):
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="alert-title",
             **attributes,
         )
 
 
-class AlertDescription(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "grid gap-1 justify-items-start text-muted-foreground text-sm col-start-2 [&_ol]:ml-4 [&_ul]:ml-4 [&_p]:leading-relaxed"
+class AlertDescription(Section):
+    def __init__(
+        self,
+        variant: Literal["default", "destructive"] = "default",
+        **attributes: Unpack[SectionAttributes],
+    ):
+        variant_class_attribute = AlertDescriptionVariant[variant]
+        base_class_attribute = "justify-items-start text-sm grid col-start-2 gap-1 [&_p]:leading-relaxed [&_ul]:text-sm [&_ul]:list-inside [&_ul]:list-disc"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute), **attributes
+            _class=tw_merge(
+                variant_class_attribute, base_class_attribute, class_attribute
+            ),
+            **attributes,
         )
-
-    def __call__(self, *children: tuple) -> Self:
-        for child in children:
-            if (
-                isinstance(child, str)
-                or isinstance(child, BaseWebElement)
-                or not isinstance(child, Iterable)
-            ):
-                if isinstance(child, str):
-                    self.children.append(P()(child))
-                else:
-                    self.children.append(child)
-            elif isinstance(child, Generator):
-                self.children.extend(list(child))
-            elif isinstance(child, type(None)):
-                continue
-            else:
-                self.children.extend(child)
-
-        return self
