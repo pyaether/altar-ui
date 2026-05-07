@@ -1,5 +1,16 @@
-import warnings
-from typing import Self
+"""Breadcrumb
+
+Displays the path to the current resource using a hierarchy of links.
+
+Composition:
+    Use the following composition to build a Breadcrumb:
+
+    Breadcrumb
+    ├── BreadcrumbItem
+    │   ├── BreadcrumbLink
+    │   └── BreadcrumbPage
+    └── BreadcrumbSeparator
+"""
 
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import (
@@ -7,16 +18,12 @@ from aether.tags.html import (
     AAttributes,
     Li,
     LiAttributes,
-    Nav,
-    NavAttributes,
     Ol,
     OlAttributes,
     Span,
     SpanAttributes,
 )
-from altar_icons import BaseSVGIconElement, ChevronRightIcon, EllipsisIcon
-
-from .passthrough import Passthrough
+from altar_icons import ChevronRightIcon
 
 try:
     from typing import Unpack
@@ -24,55 +31,40 @@ except ImportError:
     from typing_extensions import Unpack  # noqa: UP035
 
 
-class Breadcrumb(Nav):
-    def __init__(self, **attributes: Unpack[NavAttributes]):
-        super().__init__(data_slot="breadcrumb", aria_label="breadcrumb", **attributes)
-
-
-class BreadcrumbList(Ol):
+class Breadcrumb(Ol):
     def __init__(self, **attributes: Unpack[OlAttributes]):
-        base_class_attribute = "flex flex-wrap gap-1.5 items-center text-muted-foreground text-sm break-words sm:gap-2.5"
+        base_class_attribute = "flex-wrap break-words items-center text-muted-foreground text-sm gap-1.5 flex sm:gap-2.5"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="breadcrumb-list",
+            role="navigation",
+            aria_label="breadcrumb",
             **attributes,
         )
 
 
 class BreadcrumbItem(Li):
     def __init__(self, **attributes: Unpack[LiAttributes]):
-        base_class_attribute = "inline-flex gap-1.5 items-center"
+        base_class_attribute = "inline-flex items-center gap-1.5"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="breadcrumb-item",
             **attributes,
         )
 
 
 class BreadcrumbLink(A):
-    def __init__(self, pass_through: bool = False, **attributes: Unpack[AAttributes]):
+    def __init__(self, disabled: bool = False, **attributes: Unpack[AAttributes]):
         base_class_attribute = "transition-colors hover:text-foreground"
         class_attribute = attributes.pop("_class", "")
 
-        data_slot = attributes.pop("data_slot", "breadcrumb-link")
-
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot=data_slot,
+            aria_disabled="true" if disabled else "false",
             **attributes,
         )
-
-        self.pass_through = pass_through
-
-    def __call__(self, *children: tuple) -> Self | Passthrough:
-        if self.pass_through:
-            return Passthrough(**self.attributes)(*children)
-        else:
-            return super().__call__(*children)
 
 
 class BreadcrumbPage(Span):
@@ -82,68 +74,19 @@ class BreadcrumbPage(Span):
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="breadcrumb-page",
-            role="link",
-            aria_disabled="true",
             aria_current="page",
+            aria_disabled="true",
+            role="link",
             **attributes,
         )
 
 
 class BreadcrumbSeparator(Li):
     def __init__(self, **attributes: Unpack[LiAttributes]):
-        base_class_attribute = "[&>svg]:size-3.5"
-        class_attribute = attributes.pop("_class", "")
-
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="breadcrumb-separator",
             role="presentation",
             aria_hidden="true",
             **attributes,
         )
 
-        self.children = [ChevronRightIcon()]
-
-    def __call__(self, *children: tuple) -> Self:
-        allowed_child_types = (str, BaseSVGIconElement)
-
-        if len(children) != 1:
-            raise ValueError(
-                f"`{self.__class__.__qualname__}` must be called with exactly one child, but got {len(children)}."
-            )
-        else:
-            child = children[0]
-            if isinstance(child, allowed_child_types):
-                self.children = [child]
-            else:
-                raise ValueError(
-                    f"Invalid child type found. `{self.__class__.__qualname__}` can only have {', '.join([type(allowed_type).__class__.__qualname__ for allowed_type in allowed_child_types])}."
-                )
-
-        return self
-
-
-class BreadcrumbEllipsis(Span):
-    def __init__(self, **attributes: Unpack[SpanAttributes]):
-        base_class_attribute = "flex justify-center items-center size-9"
-        class_attribute = attributes.pop("_class", "")
-
-        super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="breadcrumb-ellipsis",
-            role="presentation",
-            aria_hidden="true",
-            **attributes,
-        )
-
-        self.children = [EllipsisIcon(_class="size-4"), Span(_class="sr-only")("More")]
-
-    def __call__(self, *_children: tuple) -> Self:
-        warnings.warn(
-            f"Trying to add child to a non-child element: {self.__class__.__qualname__}",
-            UserWarning,
-            stacklevel=2,
-        )
-
-        return self
+        self.children = [ChevronRightIcon(_class="size-3.5")]
