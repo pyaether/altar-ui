@@ -1,3 +1,13 @@
+"""Checkbox
+
+A control that allows the user to toggle between checked and not checked.
+
+Composition:
+    Use the following composition to build a Checkbox:
+
+    Checkbox
+"""
+
 import warnings
 from typing import Self
 
@@ -13,38 +23,30 @@ except ImportError:
 
 class Checkbox(Div):
     def __init__(self, **attributes: Unpack[InputAttributes]):
-        class_attribute = "peer relative inline-flex items-center"
+        base_class_attribute = (
+            "relative inline-flex shrink-0 size-4 items-center justify-center"
+        )
 
-        if attributes.get("id"):
-            forwarded_id_attribute = attributes.pop("id")
-        elif attributes.get(":id"):
-            forwarded_id_attribute = attributes.pop(":id")
-        else:
-            forwarded_id_attribute = "$id('checkbox')"
+        if not attributes.get("id") and not attributes.get(":id"):
+            attributes[":id"] = "$id('checkbox')"
 
-        forwarded_base_class_attribute = "rounded-[4px] border-input border outline-none shadow-xs transition-shadow appearance-none cursor-pointer peer aria-invalid:ring-destructive/20 aria-invalid:border-destructive size-4 shrink-0 dark:bg-input/30 dark:aria-invalid:ring-destructive/40 checked:text-primary-foreground checked:bg-primary checked:border-primary disabled:opacity-50 disabled:cursor-not-allowed focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] dark:checked:bg-primary"
-        self.forwarded_class_attribute = attributes.pop("_class", "")
+        forwarded_base_class_attribute = "outline-none appearance-none transition-shadow rounded-[4px] border-input shadow-xs border size-4 m-0 peer dark:bg-input/30 aria-invalid:border-destructive aria-invalid:ring-destructive/20 checked:border-primary checked:bg-primary focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50 disabled:cursor-not-allowed dark:aria-invalid:ring-destructive/40 dark:checked:bg-primary"
+        forwarded_class_attribute = attributes.pop("_class", "")
         self.forwarded_attributes = attributes
 
-        super().__init__(
-            _class=class_attribute,
-        )
+        super().__init__(_class=base_class_attribute)
 
         self.children = [
             Input(
                 type="checkbox",
-                data_slot="checkbox",
                 _class=tw_merge(
-                    forwarded_base_class_attribute, self.forwarded_class_attribute
+                    forwarded_base_class_attribute, forwarded_class_attribute
                 ),
-                **{":id": forwarded_id_attribute}
-                if "$id" in forwarded_id_attribute
-                else {"id": f"{forwarded_id_attribute.lower().replace(' ', '-')}"},
                 **self.forwarded_attributes,
             ),
             CheckIcon(
-                data_slot="checkbox-indicator",
-                _class="absolute inset-0 invisible pointer-events-none peer-checked:text-primary-foreground peer-checked:transition-none peer-checked:visible size-4",
+                _class="pointer-events-none absolute opacity-0 text-primary-foreground size-3.5 peer-checked:opacity-100 peer-disabled:opacity-50",
+                aria_hidden="true",
             ),
         ]
 

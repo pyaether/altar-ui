@@ -1,7 +1,20 @@
-from collections.abc import Generator, Iterable
-from typing import Literal, Self
+"""Carousel
 
-from aether import BaseWebElement
+A carousel with motion and swipe.
+
+Composition:
+    Use the following composition to build a Carousel:
+
+    Carousel
+    ├── CarouselPrevious
+    ├── CarouselContent
+    │   ├── CarouselItem
+    │   └── CarouselItem
+    └── CarouselNext
+"""
+
+from typing import Literal
+
 from aether.plugins.alpinejs import AlpineJSData, Statement, alpine_js_data_merge
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import ButtonAttributes as PyButtonAttributes
@@ -19,22 +32,26 @@ except ImportError:
 class Carousel(Div):
     def __init__(
         self,
-        orientation: Literal["horizontal", "vertical"],
         number_of_slides: int,
+        orientation: Literal["horizontal", "vertical"] = "horizontal",
         **attributes: Unpack[DivAttributes],
     ):
-        base_class_attribute = "relative"
+        base_class_attribute = (
+            "flex items-center gap-2"
+            if orientation == "horizontal"
+            else "flex flex-col items-center gap-2"
+        )
         base_x_data_attribute = AlpineJSData(
             data={
                 "carouselOrientation": orientation,
                 "slideLength": number_of_slides,
                 "currentSlideIndex": 1,
                 "previousSlide()": Statement(
-                    "{ if (this.currentSlideIndex > 1) { this.currentSlideIndex -= 1 } else { this.currentSlideIndex = this.slideLength } }",
+                    "{ this.currentSlideIndex > 1 ? this.currentSlideIndex -= 1 : this.currentSlideIndex = this.slideLength; $refs.track.children[this.currentSlideIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' }) }",
                     seq_type="definition",
                 ),
                 "nextSlide()": Statement(
-                    "{ if (this.currentSlideIndex < this.slideLength) { this.currentSlideIndex += 1 } else { this.currentSlideIndex = 1 } }",
+                    "{ this.currentSlideIndex < this.slideLength ? this.currentSlideIndex += 1 : this.currentSlideIndex = 1; $refs.track.children[this.currentSlideIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' }) }",
                     seq_type="definition",
                 ),
             },
@@ -48,66 +65,38 @@ class Carousel(Div):
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             role="region",
             aria_roledescription="carousel",
-            data_slot="carousel",
             **attributes,
         )
 
 
 class CarouselContent(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        self.forwarded_base_class_attribute = "flex"
-        self.forwarded_class_attribute = attributes.pop("_class", "")
-        self.forwarded_attributes = attributes
-
-        super().__init__(_class="overflow-hidden")
-
-    def __call__(self, *children: tuple) -> Self:
-        forwarded_children = []
-        for child in children:
-            if (
-                isinstance(child, str)
-                or isinstance(child, BaseWebElement)
-                or not isinstance(child, Iterable)
-            ):
-                forwarded_children.append(child)
-            elif isinstance(child, Generator):
-                forwarded_children.extend(list(child))
-            elif isinstance(child, type(None)):
-                continue
-            else:
-                forwarded_children.extend(child)
-
-        self.children.append(
-            Div(
-                _class=tw_merge(
-                    self.forwarded_base_class_attribute,
-                    self.forwarded_class_attribute,
-                ),
-                **{
-                    ":class": "{ '-ml-4': carouselOrientation === 'horizontal', '-mt-4': carouselOrientation !== 'horizontal', 'flex-col': carouselOrientation !== 'horizontal' }"
-                },
-            )(*forwarded_children)
-        )
-
-        return self
-
-
-class CarouselItem(Div):
-    def __init__(self, item_index: int, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "min-w-0 shrink-0 grow-0 basis-full"
+        base_class_attribute = "overflow-hidden scroll-smooth snap-mandatory flex [&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            x_show=f"currentSlideIndex === {item_index + 1}",
+            x_ref="track",
             **{
-                "x-transition:enter": "animate-in zoom-in-95 fade-in-0",
-                "x-transition:leave": "animate-out zoom-out-95 fade-out-0",
-                ":class": "{ 'pl-4': carouselOrientation === 'horizontal', 'pt-4': carouselOrientation !== 'horizontal' }",
+                ":class": "{ 'snap-x': carouselOrientation === 'horizontal', 'overflow-x-auto': carouselOrientation === 'horizontal', 'snap-y': carouselOrientation === 'vertical', 'overflow-y-auto': carouselOrientation === 'vertical', 'flex-col': carouselOrientation === 'vertical' }",
+                "@scrollend": "currentSlideIndex = carouselOrientation === 'horizontal' ? Math.round($el.scrollLeft / $el.clientWidth) + 1 : Math.round($el.scrollTop / $el.clientHeight) + 1",
+            },
+            **attributes,
+        )
+
+
+class CarouselItem(Div):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
+        base_class_attribute = "basis-full shrink-0 min-w-0 snap-start grow-0"
+        class_attribute = attributes.pop("_class", "")
+
+        super().__init__(
+            _class=tw_merge(base_class_attribute, class_attribute),
+            **{
+                ":class": "{ 'px-4': carouselOrientation === 'horizontal', 'py-4': carouselOrientation === 'vertical'}",
             },
             role="group",
             aria_roledescription="slide",
-            data_slot="carousel-item",
             **attributes,
         )
 
@@ -118,10 +107,10 @@ class CarouselPrevious(Button):
         variant: Literal[
             "default", "destructive", "outline", "secondary", "ghost", "link"
         ] = "outline",
-        size: Literal["default", "sm", "lg", "icon"] = "icon",
+        size: Literal["default", "sm", "lg", "icon", "icon_sm", "icon_lg"] = "icon",
         **attributes: Unpack[PyButtonAttributes],
     ):
-        base_class_attribute = "absolute rounded-full size-8"
+        base_class_attribute = "rounded-full shrink-0 size-8"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -129,16 +118,15 @@ class CarouselPrevious(Button):
             size=size,
             _class=tw_merge(base_class_attribute, class_attribute),
             **{
-                ":class": "{ 'top-1/2': carouselOrientation === 'horizontal', '-left-12': carouselOrientation === 'horizontal', '-translate-y-1/2': carouselOrientation === 'horizontal', '-top-12': carouselOrientation !== 'horizontal', 'left-1/2': carouselOrientation !== 'horizontal', '-translate-x-1/2': carouselOrientation !== 'horizontal', 'rotate-90': carouselOrientation !== 'horizontal' }",
                 "@click": "previousSlide()",
+                ":class": "{ 'rotate-90': carouselOrientation === 'vertical' }",
                 ":disabled": "currentSlideIndex === 1",
             },
-            data_slot="carousel-previous",
             **attributes,
         )
 
         self.children = [
-            ArrowLeftIcon(_class="w-4 h-4"),
+            ArrowLeftIcon(_class="size-4"),
             Span(_class="sr-only")("Previous Slide"),
         ]
 
@@ -149,10 +137,10 @@ class CarouselNext(Button):
         variant: Literal[
             "default", "destructive", "outline", "secondary", "ghost", "link"
         ] = "outline",
-        size: Literal["default", "sm", "lg", "icon"] = "icon",
+        size: Literal["default", "sm", "lg", "icon", "icon_sm", "icon_lg"] = "icon",
         **attributes: Unpack[PyButtonAttributes],
     ):
-        base_class_attribute = "absolute rounded-full size-8"
+        base_class_attribute = "rounded-full shrink-0 size-8"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
@@ -161,14 +149,13 @@ class CarouselNext(Button):
             _class=tw_merge(base_class_attribute, class_attribute),
             **{
                 "@click": "nextSlide()",
-                ":class": "{ 'top-1/2': carouselOrientation === 'horizontal', '-right-12': carouselOrientation === 'horizontal', '-translate-y-1/2': carouselOrientation === 'horizontal', '-bottom-12': carouselOrientation !== 'horizontal', 'left-1/2': carouselOrientation !== 'horizontal', '-translate-x-1/2': carouselOrientation !== 'horizontal', 'rotate-90': carouselOrientation !== 'horizontal' }",
+                ":class": "{ 'rotate-90': carouselOrientation === 'vertical' }",
                 ":disabled": "currentSlideIndex === slideLength",
             },
-            data_slot="carousel-next",
             **attributes,
         )
 
         self.children = [
-            ArrowRightIcon(_class="w-4 h-4"),
+            ArrowRightIcon(_class="size-4"),
             Span(_class="sr-only")("Next Slide"),
         ]

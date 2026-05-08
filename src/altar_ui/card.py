@@ -1,5 +1,34 @@
+"""Card
+
+Displays a card with header, content, and footer.
+
+Composition:
+    Use the following composition to build a Card:
+
+    Card
+    ├── CardHeader
+    │   ├── CardTitle
+    │   ├── CardDescription
+    │   └── CardAction
+    ├── CardContent
+    └── CardFooter
+"""
+
 from aether.plugins.tailwindcss import tw_merge
-from aether.tags.html import Div, DivAttributes
+from aether.tags.html import (
+    H2,
+    Div,
+    DivAttributes,
+    Footer,
+    FooterAttributes,
+    HAttributes,
+    Header,
+    HeaderAttributes,
+    P,
+    PAttributes,
+    Section,
+    SectionAttributes,
+)
 
 try:
     from typing import Unpack
@@ -9,48 +38,44 @@ except ImportError:
 
 class Card(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "flex flex-col gap-6 py-6 text-card-foreground bg-card rounded-xl border shadow-sm"
+        base_class_attribute = "flex-col rounded-xl shadow-sm border text-card-foreground gap-6 flex bg-card py-6"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="card",
             **attributes,
         )
 
 
-class CardHeader(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "grid grid-rows-[auto_auto] gap-1.5 items-start px-6 @container/card-header auto-rows-min has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
+class CardHeader(Header):
+    def __init__(self, **attributes: Unpack[HeaderAttributes]):
+        base_class_attribute = "auto-rows-min grid-rows-[auto_auto] items-start grid gap-1.5 px-6 has-[[data-slot=card-action]]:grid-cols-[1fr_auto] [&.border-b]:pb-6 @container/card-header"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="card-header",
             **attributes,
         )
 
 
-class CardTitle(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "font-semibold leading-none"
+class CardTitle(H2):
+    def __init__(self, **attributes: Unpack[HAttributes]):
+        base_class_attribute = "leading-none font-semibold"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="card-title",
             **attributes,
         )
 
 
-class CardDescription(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
+class CardDescription(P):
+    def __init__(self, **attributes: Unpack[PAttributes]):
         base_class_attribute = "text-muted-foreground text-sm"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="card-description",
             **attributes,
         )
 
@@ -69,25 +94,23 @@ class CardAction(Div):
         )
 
 
-class CardContent(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
+class CardContent(Section):
+    def __init__(self, **attributes: Unpack[SectionAttributes]):
         base_class_attribute = "px-6"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="card-content",
             **attributes,
         )
 
 
-class CardFooter(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "flex items-center px-6 [.border-t]:pt-6"
+class CardFooter(Footer):
+    def __init__(self, **attributes: Unpack[FooterAttributes]):
+        base_class_attribute = "items-center flex px-6 [&.border-t]:pt-6"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="card-footer",
             **attributes,
         )
