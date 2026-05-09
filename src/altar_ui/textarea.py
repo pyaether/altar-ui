@@ -1,7 +1,16 @@
+"""Textarea
+
+Displays a form textarea or a component that looks like a textarea.
+
+Composition:
+    Use the following composition to build a Textarea:
+
+    Textarea
+"""
+
 import warnings
 from typing import Self
 
-from aether.plugins.alpinejs import AlpineJSData, Statement, alpine_js_data_merge
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import (
     Textarea as PyTextarea,
@@ -17,34 +26,12 @@ except ImportError:
 
 
 class Textarea(PyTextarea):
-    def __init__(
-        self, autogrow: bool = False, **attributes: Unpack[PyTextareaAttributes]
-    ):
-        base_class_attribute = "flex px-3 py-2 w-full min-h-16 text-base bg-transparent rounded-md border-input border outline-none shadow-xs transition-[color,box-shadow] placeholder:text-muted-foreground aria-invalid:ring-destructive/20 aria-invalid:border-destructive field-sizing-content md:text-sm dark:bg-input/30 dark:aria-invalid:ring-destructive/40 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+    def __init__(self, **attributes: Unpack[PyTextareaAttributes]):
+        base_class_attribute = "field-sizing-content outline-none transition-[color,box-shadow] rounded-md border-input shadow-xs border min-h-16 text-base flex px-3 bg-transparent py-2 w-full md:text-sm dark:bg-input/30 aria-invalid:border-destructive aria-invalid:ring-destructive/20 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-muted-foreground dark:aria-invalid:ring-destructive/40"
         class_attribute = attributes.pop("_class", "")
 
-        if autogrow:
-            base_x_data_attribute = AlpineJSData(
-                data={
-                    "resize()": Statement(
-                        "{ $el.style.height = '0px'; $el.style.height = $el.scrollHeight + 'px'; }",
-                        seq_type="definition",
-                    )
-                },
-                directive="x-data",
-            )
-            x_data_attribute = attributes.pop("x_data", None)
-
-            attributes["x-data"] = alpine_js_data_merge(
-                base_x_data_attribute, x_data_attribute
-            )
-            attributes["x-effect"] = "resize()"
-            attributes["@input"] = "resize()"
-
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="textarea",
-            **attributes,
+            _class=tw_merge(base_class_attribute, class_attribute), **attributes
         )
 
     def __call__(self, *_children: tuple) -> Self:

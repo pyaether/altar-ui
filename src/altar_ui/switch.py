@@ -1,9 +1,16 @@
-import warnings
-from typing import Self
+"""Switch
 
-from aether.plugins.alpinejs import AlpineJSData, alpine_js_data_merge
+A control that allows the user to toggle between checked and not checked.
+
+Composition:
+    Use the following composition to build a Switch:
+
+    Switch
+"""
+
 from aether.plugins.tailwindcss import tw_merge
-from aether.tags.html import Button, Div, DivAttributes, Input, Span
+from aether.tags.html import Input as PyInput
+from aether.tags.html import InputAttributes
 
 try:
     from typing import Unpack
@@ -11,74 +18,17 @@ except ImportError:
     from typing_extensions import Unpack  # noqa: UP035
 
 
-class Switch(Div):
-    def __init__(
-        self,
-        default_value: bool = False,
-        disabled: bool = False,
-        **attributes: Unpack[DivAttributes],
-    ):
-        base_class_attribute = "inline-flex relative items-center peer"
-        base_x_data_attribute = AlpineJSData(
-            data={"checked": default_value}, directive="x-data"
-        )
-        x_data_attribute = attributes.pop("x_data", None)
+class Switch(PyInput):
+    def __init__(self, **attributes: Unpack[InputAttributes]):
+        base_class_attribute = "outline-none appearance-none inline-flex transition-all rounded-full border-transparent shadow-xs border shrink-0 items-center bg-input w-8 h-[1.15rem] dark:bg-input/80 checked:bg-primary focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50 disabled:cursor-not-allowed before:pointer-events-none before:transition-all before:rounded-full before:content-[''] before:block before:size-4 before:ring-0 before:bg-background dark:checked:bg-primary dark:before:bg-foreground checked:before:ms-3.5 dark:checked:before:bg-primary-foreground"
+        class_attribute = attributes.pop("_class", "")
 
-        if attributes.get("id"):
-            forwarded_id_attribute = attributes.pop("id")
-        elif attributes.get(":id"):
-            forwarded_id_attribute = attributes.pop(":id")
-        else:
-            forwarded_id_attribute = "$id('switch')"
-
-        forwarded_base_class_attribute = "inline-flex items-center w-8 h-[1.15rem] rounded-full border border-transparent outline-none shadow-xs transition-all appearance-none cursor-pointer peer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-        self.forwarded_class_attribute = attributes.pop("_class", "")
-        forwarded_name_attribute = attributes.pop("name", "toggle-switch")
-        self.forwarded_attributes = attributes
+        type_attribute = attributes.pop("type", "checkbox")
+        role_attribute = attributes.pop("role", "switch")
 
         super().__init__(
-            _class=base_class_attribute,
-            x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
+            _class=tw_merge(base_class_attribute, class_attribute),
+            type=type_attribute,
+            role=role_attribute,
+            **attributes,
         )
-
-        self.children = [
-            Input(
-                type="hidden",
-                name=forwarded_name_attribute,
-                x_model="checked",
-                disabled=disabled,
-            ),
-            Button(
-                type="button",
-                data_slot="switch-thumb",
-                disabled=disabled,
-                x_model="checked" if attributes.get("x_modelable") else None,
-                _class=tw_merge(
-                    forwarded_base_class_attribute, self.forwarded_class_attribute
-                ),
-                **{":id": forwarded_id_attribute}
-                if "$id" in forwarded_id_attribute
-                else {"id": f"{forwarded_id_attribute.lower().replace(' ', '-')}"},
-                **{
-                    "@click": "checked = !checked",
-                    ":class": "{ 'bg-primary': checked, 'bg-input dark:bg-input/80': !checked }",
-                },
-                **self.forwarded_attributes,
-            )(
-                Span(
-                    _class="block bg-background rounded-full ring-0 transition-transform pointer-events-none size-4",
-                    **{
-                        ":class": "{ 'dark:bg-primary-foreground translate-x-[calc(100%-2px)]': checked, 'dark:bg-foreground translate-x-0': !checked }"
-                    },
-                    aria_hidden=True,
-                )()
-            ),
-        ]
-
-    def __call__(self, *_children: tuple) -> Self:
-        warnings.warn(
-            f"Trying to add child to a non-child element: {self.__class__.__qualname__}",
-            UserWarning,
-            stacklevel=2,
-        )
-        return self

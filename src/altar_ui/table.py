@@ -1,7 +1,27 @@
-from collections.abc import Generator, Iterable
+"""Table
+
+A responsive table component.
+
+Composition:
+    Use the following composition to build a Table:
+
+    Table
+    ├── TableCaption (optional)
+    ├── TableHeader
+    │   └── TableRow
+    │       └── TableHead
+    ├── TableBody
+    │   ├── TableRow
+    │   │   └── TableCell
+    │   └── TableRow
+    │       └── TableCell
+    └── TableFooter (optional)
+        └── TableRow
+            └── TableCell
+"""
+
 from typing import Self
 
-from aether import BaseWebElement
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import (
     Caption,
@@ -31,39 +51,19 @@ except ImportError:
 
 class Table(Div):
     def __init__(self, **attributes: Unpack[PyTableAttributes]):
-        self.forwarded_base_class_attribute = "w-full text-sm caption-bottom"
+        self.forwarded_base_class_attribute = "text-sm w-full caption-bottom"
         self.forwarded_class_attribute = attributes.pop("_class", "")
         self.forwarded_attributes = attributes
 
-        super().__init__(
-            _class="overflow-x-auto relative w-full",
-            data_slot="table-container",
-            **attributes,
-        )
+        super().__init__(_class="overflow-x-auto", **attributes)
 
     def __call__(self, *children: tuple) -> Self:
-        forwarded_children = []
-        for child in children:
-            if (
-                isinstance(child, str)
-                or isinstance(child, BaseWebElement)
-                or not isinstance(child, Iterable)
-            ):
-                forwarded_children.append(child)
-            elif isinstance(child, Generator):
-                forwarded_children.extend(list(child))
-            elif isinstance(child, type(None)):
-                continue
-            else:
-                forwarded_children.extend(child)
-
         self.children.append(
             PyTable(
                 _class=tw_merge(
                     self.forwarded_base_class_attribute, self.forwarded_class_attribute
                 ),
-                data_slot="table",
-            )(*forwarded_children)
+            )(*children)
         )
 
         return self
@@ -76,9 +76,7 @@ class TableHeader(Thead):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="table-header",
-            **attributes,
+            _class=tw_merge(base_class_attribute, class_attribute), **attributes
         )
 
 
@@ -89,72 +87,60 @@ class TableBody(Tbody):
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="table-body",
-            **attributes,
+            _class=tw_merge(base_class_attribute, class_attribute), **attributes
         )
 
 
 class TableFooter(Tfoot):
     def __init__(self, **attributes: Unpack[TfootAttributes]):
-        base_class_attribute = "font-medium bg-muted/50 border-t [&>tr]:last:border-b-0"
+        base_class_attribute = "border-t font-medium bg-muted/50 [&>tr]:last:border-b-0"
 
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="table-footer",
-            **attributes,
+            _class=tw_merge(base_class_attribute, class_attribute), **attributes
         )
 
 
 class TableRow(Tr):
     def __init__(self, **attributes: Unpack[TrAttributes]):
-        base_class_attribute = "border-b transition-colors data-[state=selected]:bg-muted hover:bg-muted/50"
+        base_class_attribute = "transition-colors border-b hover:bg-muted/50"
 
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="table-row",
-            **attributes,
+            _class=tw_merge(base_class_attribute, class_attribute), **attributes
         )
 
 
 class TableHead(Th):
     def __init__(self, **attributes: Unpack[ThAttributes]):
-        base_class_attribute = "align-middle px-2 h-10 font-medium text-foreground text-left whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]"
+        base_class_attribute = "whitespace-nowrap align-middle font-medium text-foreground text-left px-2 h-10 [&>[role=checkbox]]:translate-y-[2px] [&:has([role=checkbox])]:pr-0"
 
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="table-head",
-            **attributes,
+            _class=tw_merge(base_class_attribute, class_attribute), **attributes
         )
 
 
 class TableCell(Td):
     def __init__(self, **attributes: Unpack[TdAttributes]):
-        base_class_attribute = "align-middle p-2 whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]"
+        base_class_attribute = "whitespace-nowrap align-middle p-2 [&>[role=checkbox]]:translate-y-[2px] [&:has([role=checkbox])]:pr-0"
 
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="table-cell",
-            **attributes,
+            _class=tw_merge(base_class_attribute, class_attribute), **attributes
         )
 
 
 class TableCaption(Caption):
     def __init__(self, **attributes: Unpack[CaptionAttributes]):
-        base_class_attribute = "mt-4 text-muted-foreground text-sm"
+        base_class_attribute = "text-muted-foreground text-sm mt-4"
 
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="table-caption",
-            **attributes,
+            _class=tw_merge(base_class_attribute, class_attribute), **attributes
         )
