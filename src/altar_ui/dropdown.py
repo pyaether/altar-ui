@@ -1,31 +1,146 @@
-import warnings
+"""Dropdown Menu
+
+Displays a menu to the user, such as a set of actions or functions — triggered by a button.
+
+Composition:
+    Use the following composition to build a Dropdown Menu:
+
+    DropdownMenu
+    ├── DropdownMenuTrigger
+    └── DropdownMenuContent
+        └── DropdownMenuMenu
+            ├── DropdownMenuGroup (optional)
+            │   ├── DropdownMenuGroupLabel (optional)
+            │   ├── DropdownMenuItem
+            │   │   └── DropdownMenuShortcut (optional)
+            │   ├── DropdownMenuCheckboxItem
+            │   │   └── DropdownMenuShortcut (optional)
+            │   └── DropdownMenuRadioGroup
+            │       └── DropdownMenuRadioItem
+            │           └── DropdownMenuShortcut (optional)
+            ├── DropdownMenuItem
+            └── DropdownMenuSeparator(optional)
+
+Requires:
+    AlpineJS Focus Plugin (x-trap on PopoverContent)
+"""
+
 from typing import Literal, Self
 
 from aether.plugins.alpinejs import AlpineJSData, Statement, alpine_js_data_merge
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import (
+    H3,
+    Div,
+    DivAttributes,
+    HAttributes,
+    Hr,
+    HrAttributes,
+    Span,
+    SpanAttributes,
+)
+from aether.tags.html import (
     ButtonAttributes as PyButtonAttributes,
 )
-from aether.tags.html import Div, DivAttributes
+from altar_icons import CheckIcon, DotFilledIcon
 
-from .button import Button
-from .passthrough import Passthrough
+from .mixins import AsChildMixin
+from .popover import Popover, PopoverContent, PopoverTrigger
 
 try:
     from typing import Unpack
 except ImportError:
     from typing_extensions import Unpack  # noqa: UP035
 
-# Requires Anchor plugin
 
+class DropdownMenu(Popover):
+    def __init__(
+        self, default_id: str | None = None, **attributes: Unpack[DivAttributes]
+    ):
+        if default_id is None:
+            default_id = ""
 
-class DropdownMenu(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
         base_x_data_attribute = AlpineJSData(
             data={
                 "isOpen": False,
-                "toggleDropdownMenu()": Statement(
-                    content="{ this.isOpen = !this.isOpen }", seq_type="definition"
+                "currentItem": default_id,
+                "activeId": "",
+                "menuId": Statement("$id('dropdown-menu')", seq_type="assignment"),
+                "_visibleItems()": Statement(
+                    r"""{ return [ ...(this.$refs.menu?.querySelectorAll('[role^="menuitem"]:not([aria-disabled="true"]):not([aria-hidden="true"])') || []) ]; }""",
+                    seq_type="definition",
+                ),
+                "openPopover()": Statement(
+                    r"""{
+                        this.isOpen = true;
+                        this.$nextTick(() => {
+                            if (this.$refs.menu) { this.$refs.menu.focus(); }
+
+                            const selected = this.$refs.menu?.querySelector('[aria-selected="true"]');
+                        if (selected) {
+                                selected.scrollIntoView({ block: 'nearest' });
+                                this.activeId= selected.id;
+                            } else {
+                                const first = this._visibleItems()[0];
+                                if (first) this.activeId = first.id;
+                            }
+                        });
+                    }""",
+                    seq_type="definition",
+                ),
+                "closePopover(focusOnTrigger)": Statement(
+                    r"""{
+                        if (!this.isOpen) return;
+
+                        this.isOpen = false;
+                        this.activeId = '';
+
+                        if (focusOnTrigger) this.$refs.trigger?.focus();
+                    }""",
+                    seq_type="definition",
+                ),
+                "togglePopoverState()": Statement(
+                    "{ this.isOpen ? this.closePopover(true) : this.openPopover(); }",
+                    seq_type="definition",
+                ),
+                "selectItem(id)": Statement(
+                    r"{ this.currentItem = id; this.closePopover(true); }",
+                    seq_type="definition",
+                ),
+                "focusNext()": Statement(
+                    r"""{
+                        const items = this._visibleItems();
+                        if (!items.length) return;
+
+                        const current = items.findIndex(i => i.id === this.activeId);
+                        const next = items[current < items.length - 1 ? current + 1 : 0];
+
+                        this.activeId = next.id;
+                        this.$nextTick(() => next.scrollIntoView({ block: 'nearest' }));
+                    }""",
+                    seq_type="definition",
+                ),
+                "focusPrev()": Statement(
+                    r"""{
+                        const items = this._visibleItems();
+                        if (!items.length) return;
+
+                        const current = items.findIndex(i => i.id === this.activeId);
+                        const previous = items[current  > 0 ? current - 1 : items.length - 1];
+
+                        this.activeId = previous.id;
+                        this.$nextTick(() => previous.scrollIntoView({ block: 'nearest' }));
+                    }""",
+                    seq_type="definition",
+                ),
+                "selectActive()": Statement(
+                    r"""{
+                        if (this.activeId) {
+                            const active = this._visibleItems().find(i => i.id === this.activeId);
+                            if (active) active.click();
+                        }
+                    }""",
+                    seq_type="definition",
                 ),
             },
             directive="x-data",
@@ -35,155 +150,232 @@ class DropdownMenu(Div):
         super().__init__(
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             data_slot="dropdown-menu",
-            **{"@keydown.escape.window": "isOpen = false"},
             **attributes,
         )
 
 
-class DropdownMenuTrigger(Button):
+class DropdownMenuTrigger(PopoverTrigger):
     def __init__(
         self,
         variant: Literal[
             "default", "destructive", "outline", "secondary", "ghost", "link"
-        ] = "default",
-        size: Literal["default", "sm", "lg", "icon"] = "default",
-        pass_through: bool = False,
+        ] = "outline",
+        size: Literal["default", "sm", "lg", "icon", "icon_sm", "icon_lg"] = "default",
         **attributes: Unpack[PyButtonAttributes],
     ):
+        base_class_attribute = "font-normal [&>span]:line-clamp-1"
+        class_attribute = attributes.pop("_class", "")
+
         super().__init__(
-            type="button",
+            _class=tw_merge(base_class_attribute, class_attribute),
             variant=variant,
             size=size,
-            aria_haspopup="true",
-            x_ref="dropdownMenuTrigger",
-            data_slot="dropdown-menu-trigger",
             **{
-                "@click": "toggleDropdownMenu()",
-                ":aria-expanded": "isOpen",
-                "@keydown.space.prevent": "toggleDropdownMenu()",
-                "@keydown.enter.prevent": "toggleDropdownMenu()",
+                ":aria-controls": "menuId",
+                "aria-haspopup": "menu",
+                "@keydown.down.prevent": "if (!isOpen) openPopover()",
+                "@keydown.up.prevent": "if (!isOpen) openPopover()",
             },
             **attributes,
         )
 
-        self.pass_through = pass_through
 
-    def __call__(self, *children: tuple) -> Self | Passthrough:
-        if self.pass_through:
-            passthrough_element = Passthrough(**self.attributes)
-            return passthrough_element(*children)
-        else:
-            return super().__call__(*children)
-
-
-class DropdownMenuContent(Div):
+class DropdownMenuContent(PopoverContent):
     def __init__(
         self,
-        side_position: Literal["bottom", "top", "left", "right"] = "bottom",
-        side_align: Literal["start", "end"] = "start",
-        side_offset: int = 8,
+        position: Literal["top", "bottom", "left", "right"],
+        alignment: Literal["start", "center", "end"] = "start",
         **attributes: Unpack[DivAttributes],
     ):
-        base_class_attribute = "overflow-x-hidden overflow-y-auto z-50 p-1 min-w-[8rem] max-h-[18rem] text-popover-foreground bg-popover rounded-md border shadow-md"
-        data_side_class_attribute = "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+        base_class_attribute = "min-w-[anchor-size(width)] p-1"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
-            x_cloak=True,
-            x_show="isOpen",
-            x_trap="isOpen",
-            role="menu",
-            data_side=side_position,
-            data_slot="dropdown-menu-content",
-            _class=tw_merge(
-                data_side_class_attribute, base_class_attribute, class_attribute
-            ),
+            _class=tw_merge(base_class_attribute, class_attribute),
+            position=position,
+            alignment=alignment,
             **{
-                "@click.outside": "isOpen = false",
-                "@keydown.down.prevent": "$focus.wrap().next()",
-                "@keydown.up.prevent": "$focus.wrap().previous()",
-                "x-transition:leave": "animate-out zoom-out-95 fade-out-0",
-                "x-transition:enter": "animate-in zoom-in-95 fade-in-0",
-                f"x-anchor.{side_position}-{side_align}.offset.{side_offset}": "$refs.dropdownMenuTrigger",
+                "@keydown.down.prevent": "focusNext()",
+                "@keydown.up.prevent": "focusPrev()",
+                "@keydown.enter.prevent": "selectActive()",
             },
+            **attributes,
+        )
+
+
+class DropdownMenuMenu(Div):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
+        base_class_attribute = "outline-hidden"
+        class_attribute = attributes.pop("_class", "")
+
+        super().__init__(
+            _class=tw_merge(base_class_attribute, class_attribute),
+            role="menu",
+            x_ref="menu",
+            tabindex="-1",
+            **{":id": "menuId", "@mousemove": "activeId = ''"},
             **attributes,
         )
 
 
 class DropdownMenuGroup(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        super().__init__(data_slot="dropdown-menu-group", **attributes)
+        super().__init__(role="group", **attributes)
 
 
-class DropdownMenuItem(Div):
+class DropdownMenuGroupLabel(H3):
+    def __init__(self, **attributes: Unpack[HAttributes]):
+        base_class_attribute = "font-medium text-sm flex px-2 py-1.5"
+        class_attribute = attributes.pop("_class", "")
+
+        super().__init__(
+            _class=tw_merge(base_class_attribute, class_attribute),
+            role="heading",
+            **attributes,
+        )
+
+
+class DropdownMenuItem(AsChildMixin, Div):
     def __init__(
         self,
         disabled: bool = False,
-        inset: bool = False,
-        variant: Literal["default", "destructive"] = "default",
+        as_child: bool = False,
         **attributes: Unpack[DivAttributes],
     ):
-        base_class_attribute = "flex relative gap-2 items-center px-2 py-1.5 text-sm rounded-sm outline-hidden cursor-default select-none [&_svg:not([class*='text-'])]:text-muted-foreground [&_svg:not([class*='size-'])]:size-4 hover:text-accent-foreground hover:bg-accent focus:text-accent-foreground focus:bg-accent [&_svg]:pointer-events-none [&_svg]:shrink-0"
-        data_disabled_class_attribute = (
-            "data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-        )
-        data_inset_class_attribute = "data-[inset]:pl-8"
-        data_variant_class_attribute = "data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20"
+        base_class_attribute = "outline-hidden truncate relative rounded-sm cursor-default select-none items-center text-sm gap-2 flex px-2 py-1.5 w-full group aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-hidden:hidden hover:text-accent-foreground hover:bg-accent disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&.active]:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&.active]:bg-accent [&:not([aria-disabled=true])]:focus-visible:text-accent-foreground [&:not([aria-disabled=true])]:focus-visible:bg-accent"
         class_attribute = attributes.pop("_class", "")
 
+        self.as_child = as_child
+
         super().__init__(
-            _class=tw_merge(
-                data_disabled_class_attribute,
-                data_inset_class_attribute,
-                data_variant_class_attribute,
-                base_class_attribute,
-                class_attribute,
-            ),
+            _class=tw_merge(base_class_attribute, class_attribute),
             role="menuitem",
-            data_disabled=disabled,
-            data_inset=inset,
-            data_variant=variant,
-            data_slot="dropdown-menu-item",
+            aria_disabled="true" if disabled else "false",
+            **{
+                ":id": "$id('dropdown-item')",
+                "@click": "selectItem($el.id)",
+                ":aria-selected": "currentItem === $el.id",
+                ":class": "{ 'active': activeId === $el.id }",
+            },
             **attributes,
         )
 
 
-class DropdownMenuLabel(Div):
-    def __init__(self, inset: bool = False, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "px-2 py-1.5 font-medium text-sm"
-        data_inset_class_attribute = "data-[inset]:pl-8"
+class DropdownMenuCheckboxItem(AsChildMixin, Div):
+    def __init__(
+        self,
+        checked: bool = False,
+        disabled: bool = False,
+        as_child: bool = False,
+        **attributes: Unpack[DivAttributes],
+    ):
+        base_x_data_attribute = AlpineJSData(
+            data={"checked": checked}, directive="x-data"
+        )
+        base_class_attribute = "outline-hidden truncate relative rounded-sm cursor-default select-none items-center text-sm gap-2 flex px-2 py-1.5 w-full group aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-hidden:hidden hover:text-accent-foreground hover:bg-accent disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&.active]:text-accent-foreground [&_svg]:size-4 [&.active]:bg-accent [&:not([aria-disabled=true])]:focus-visible:text-accent-foreground [&:not([aria-disabled=true])]:focus-visible:bg-accent"
         class_attribute = attributes.pop("_class", "")
+        x_data_attribute = attributes.pop("x_data", None)
+
+        self.as_child = as_child
 
         super().__init__(
-            _class=tw_merge(
-                data_inset_class_attribute, base_class_attribute, class_attribute
+            _class=tw_merge(base_class_attribute, class_attribute),
+            x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
+            role="menuitemcheckbox",
+            aria_disabled="true" if disabled else "false",
+            **{
+                ":id": "$id('dropdown-item')",
+                "@click": "checked = !checked",
+                ":aria-checked": "checked",
+                ":class": "{ 'active': activeId === $el.id }",
+            },
+            **attributes,
+        )
+
+    def __call__(self, *children: tuple) -> Self:
+        super().__call__(*children)
+
+        self.children.insert(
+            0,
+            CheckIcon(
+                _class="transition-opacity duration-200 opacity-0 size-4 group-aria-checked:opacity-100",
             ),
-            data_inset=inset,
-            data_slot="dropdown-menu-label",
+        )
+        return self
+
+
+class DropdownMenuRadioGroup(Div):
+    def __init__(
+        self, default_value: str | None = None, **attributes: Unpack[DivAttributes]
+    ):
+        base_x_data_attribute = AlpineJSData(
+            data={"radioValue": default_value or ""}, directive="x-data"
+        )
+        x_data_attribute = attributes.pop("x_data", None)
+
+        super().__init__(
+            role="group",
+            x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             **attributes,
         )
 
 
-class DropdownMenuSeparator(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "my-1 h-px bg-border -mx-1"
+class DropdownMenuRadioItem(AsChildMixin, Div):
+    def __init__(
+        self,
+        value: str,
+        disabled: bool = False,
+        as_child: bool = False,
+        **attributes: Unpack[DivAttributes],
+    ):
+        base_class_attribute = "outline-hidden truncate relative rounded-sm cursor-default select-none items-center text-sm gap-2 flex px-2 py-1.5 w-full group aria-disabled:pointer-events-none aria-disabled:opacity-50 aria-hidden:hidden hover:text-accent-foreground hover:bg-accent disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&.active]:text-accent-foreground [&_svg]:size-4 [&.active]:bg-accent [&:not([aria-disabled=true])]:focus-visible:text-accent-foreground [&:not([aria-disabled=true])]:focus-visible:bg-accent"
+        class_attribute = attributes.pop("_class", "")
+
+        self.as_child = as_child
+
+        super().__init__(
+            _class=tw_merge(base_class_attribute, class_attribute),
+            role="menuitemradio",
+            data_value=value,
+            aria_disabled="true" if disabled else "false",
+            **{
+                ":id": "$id('dropdown-item')",
+                "@click": "radioValue = $el.dataset.value; closePopover(true);",
+                ":aria-checked": "radioValue === $el.dataset.value",
+                ":class": "{ 'active': activeId === $el.id }",
+            },
+            **attributes,
+        )
+
+    def __call__(self, *children: tuple) -> Self:
+        super().__call__(*children)
+
+        self.children.insert(
+            0,
+            DotFilledIcon(
+                _class="transition-opacity duration-200 opacity-0 size-4 group-aria-checked:opacity-100",
+            ),
+        )
+        return self
+
+
+class DropdownMenuSeparator(Hr):
+    def __init__(self, **attributes: Unpack[HrAttributes]):
+        base_class_attribute = "border-border my-1 -mx-1"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
             role="separator",
-            aria_orientation="horizontal",
-            data_slot="dropdown-menu-separator",
             **attributes,
         )
 
-    def __call__(self, *_children: tuple) -> Self:
-        warnings.warn(
-            f"Trying to add child to a non-child element: {self.__class__.__qualname__}",
-            UserWarning,
-            stacklevel=2,
+
+class DropdownMenuShortcut(Span):
+    def __init__(self, **attributes: Unpack[SpanAttributes]):
+        base_class_attribute = "tracking-widest text-muted-foreground text-xs ml-auto"
+        class_attribute = attributes.pop("_class", "")
+
+        super().__init__(
+            _class=tw_merge(base_class_attribute, class_attribute), **attributes
         )
-        return self
-
-
-# To add: DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuCheckboxItem, DropdownMenuRadioItem, DropdownMenuRadioGroup
