@@ -1,3 +1,16 @@
+"""Chart
+
+A declarative, CSS-first, responsive charts. Built using Chart.js.
+
+Composition:
+    Use the following composition to build a Chart:
+
+    Chart
+
+Requires:
+    Chart.js
+"""
+
 import warnings
 from typing import Self
 
@@ -29,83 +42,81 @@ class Chart(Div):
 
         base_x_data_attribute = AlpineJSData(
             data={
-                "chart_instance": None,
-                "chart_config": Statement(
+                "chartInstance": None,
+                "_colorCtx": None,
+                "_refreshTimer": None,
+                "chartConfig": Statement(
                     chart_config.model_dump_json(exclude_none=True),
                     seq_type="assignment",
                 ),
-                "__resolveCSSVariablesFromConfig(raw_config)": Statement(
+                # Expects value to be "var(--name)" or "var(--name) / opacity".
+                # Non-var strings are returned unchanged.
+                "__resolveColor(value)": Statement(
                     r"""{
-                        if (typeof raw_config !== 'object' || raw_config === null) return raw_config;
+                        const match = value.match(/var\((--[\w-)]+)\)(?:\s*\/\s*([\d.]+))?$/);
+                        if (!match) return value;
 
-                        if (Array.isArray(raw_config)) {
-                          return raw_config.map(item => this.__resolveCSSVariablesFromConfig(item));
+                        const raw = getComputedStyle(document.body).getPropertyValue(match[1]).trim();
+                        if (!raw) return value;
+
+                        if (!this._colorCtx) {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = canvas.height = 1;
+                            this._colorCtx = canvas.getContext('2d', { willReadFrequently: true });
                         }
 
-                        const resolved_config = {};
-                        for (const [key, value] of Object.entries(raw_config)) {
-                            if (typeof value === 'string' && value.includes('var(--')) {
-                                // Match `var(--variable) / opacity` or just `var(--variable)`
-                                const match = value.match(/var\((--[^)]+)\)(?:\s*\/\s*([\d.]+))?/);
-                                if (match) {
-                                    const variableName = match[1];
-                                    const opacity = match[2] ? parseFloat(match[2]) : 1;
+                        this._colorCtx.clearRect(0, 0, 1, 1);
+                        this._colorCtx.fillStyle = raw;
+                        this._colorCtx.globalAlpha = match[2] ? parseFloat(match[2]) : 1;
+                        this._colorCtx.fillRect(0, 0, 1, 1);
 
-                                    let color = getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+                        const[r, g, b, a] = this._colorCtx.getImageData(0, 0, 1, 1).data;
+                        return `rgba(${r},${g},${b},${(a / 255).toFixed(3)})`;
+                    }""",
+                    seq_type="definition",
+                ),
+                "__resolveConfig(config)": Statement(
+                    r"""{
+                        if (typeof config !== 'object' || config === null) return config;
 
-                                    if (opacity < 1) {
-                                        if (color.includes('oklch')) {
-                                            const oklchMatch = color.match(/oklch\(([\d.]+%?)\s+([\d.]+)\s+([\d.]+)\)/);
-                                            if (oklchMatch) {
-                                                color = `oklch(${oklchMatch[1]} ${oklchMatch[2]} ${oklchMatch[3]} / ${opacity})`;
-                                            }
-                                        } else if (color.includes('hsl')) {
-                                            const hslMatch = color.match(/hsl\(([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\)/);
-                                            if (hslMatch) {
-                                                color = `hsla(${hslMatch[1]} ${hslMatch[2]}% ${hslMatch[3]}% / ${opacity})`;
-                                            }
-                                        } else if (color.includes('rgb')) {
-                                            const rgbMatch = color.match(/rgb\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)/);
-                                            if (rgbMatch) {
-                                                color = `rgba(${rgbMatch[1]} ${rgbMatch[2]} ${rgbMatch[3]} / ${opacity})`;
-                                            }
-                                        } else if (color.startsWith('#')) {
-                                            const hex = color.slice(1);
-                                            const r = parseInt(hex.slice(0, 2), 16);
-                                            const g = parseInt(hex.slice(2, 4), 16);
-                                            const b = parseInt(hex.slice(4, 6), 16);
-                                            color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
-                                        }
-                                    }
-                                    resolved_config[key] = color;
-                                } else {
-                                    resolved_config[key] = value;
-                                }
-                            } else if (typeof value === 'object') {
-                                resolved_config[key] = this.__resolveCSSVariablesFromConfig(value);
-                            } else {
-                                resolved_config[key] = value;
-                            }
-                        }
+                        if (Array.isArray(config)) return config.map(item => this.__resolveConfig(item));
 
-                        return resolved_config;
+                        return Object.fromEntries(
+                            Object.entries(config).map(([key, value]) => [
+                                key,
+                                typeof value === 'string' && value.includes('var(--') ? this.__resolveColor(value) : (typeof value === 'object' ? this.__resolveConfig(value) : value)
+                            ])
+                        );
                     }""",
                     seq_type="definition",
                 ),
                 "initChart()": Statement(
                     r"""{
                         const canvas = this.$refs.canvas;
-                        if (canvas && typeof Chart !== 'undefined') {
-                            const ctx = canvas.getContext('2d');
-                            const colorResolvedChartConfig = this.__resolveCSSVariablesFromConfig(this.chart_config);
-                            console.log(colorResolvedChartConfig)
-                            this.chart_instance = new Chart(ctx, colorResolvedChartConfig);
-                        }
+                        if (!canvas || typeof Chart === 'undefined') return;
+
+                        Chart.getChart(canvas)?.destroy();
+
+                        this.chartInstance = new Chart(
+                            canvas.getContext('2d'), this.__resolveConfig(this.chartConfig)
+                        );
                     }""",
                     seq_type="definition",
                 ),
-                "destroyChart()": Statement(
-                    r"{ if (this.chart_instance) { this.chart_instance.destroy(); this.chart_instance = null; } }",
+                "refreshChart()": Statement(
+                    r"""{
+                        clearTimeout(this._refreshTimer);
+                        this._refreshTimer = setTimeout(() => { this.initChart(); }, 50);
+                    }""",
+                    seq_type="definition",
+                ),
+                "updateChartData(newData)": Statement(
+                    r"""{
+                        if (!this.chartInstance) return;
+
+                        this.chartInstance.data = newData;
+                        this.chartInstance.update();
+                    }""",
                     seq_type="definition",
                 ),
             },
@@ -115,8 +126,13 @@ class Chart(Div):
 
         base_x_init_attribute = AlpineJSData(
             data={
-                "initialize_chart": Statement(
-                    "$nextTick(() => initChart())", seq_type="instance"
+                "setup": Statement(
+                    r"""() => {
+                        $watch('chartConfig', () => refreshChart());
+                        $watch('isCurrentThemeDark()', () => refreshChart());
+                        $nextTick(() => initChart());
+                    }""",
+                    seq_type="instance",
                 )
             },
             directive="x-init",

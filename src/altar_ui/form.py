@@ -1,9 +1,27 @@
+"""Form
+
+Build accessible forms with client-side validation.
+
+Composition:
+    Use the following composition to build a Form:
+
+    Form
+    └── FormField
+        ├── FormLabel
+        ├── FormDescription
+        ├── FormControl
+        │   └── ... input / checkbox / textarea / etc.
+        └── FormMessage
+"""
+
+import json
 import warnings
-from typing import Any, Self
+from typing import Literal, Self
 
 from aether.plugins.alpinejs import (
     AlpineHookForm,
     AlpineJSData,
+    AlpineValidationTrigger,
     Statement,
     alpine_js_data_merge,
 )
@@ -11,22 +29,15 @@ from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import (
     Div,
     DivAttributes,
-    P,
-    PAttributes,
+    LabelAttributes,
 )
 from aether.tags.html import Form as PyForm
 from aether.tags.html import FormAttributes as PyFormAttributes
 from aether.tags.html import Input as PyInput
-from aether.tags.html import (
-    LabelAttributes as PyLabelAttributes,
-)
 from aether.tags.html import Textarea as PyTextarea
 
 from .checkbox import Checkbox
-from .input import PasswordInput
-from .label import Label
-from .radio import RadioGroupItem
-from .switch import Switch
+from .field import Field, FieldAlert, FieldDescription, FieldLabel
 
 try:
     from typing import Unpack
@@ -37,435 +48,271 @@ except ImportError:
 class Form(PyForm):
     def __init__(self, **attributes: Unpack[PyFormAttributes]):
         base_x_data_attribute = AlpineJSData(
-            data={"form_fields": []}, directive="x-data"
-        )
-        x_data_attribute = attributes.pop("x_data", None)
-
-        super().__init__(
-            x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
-            data_slot="form",
-            **attributes,
-        )
-
-
-class FormField(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_x_data_attribute = AlpineJSData(
             data={
-                "field_id": Statement(
-                    content="$id('form-field-id')", seq_type="assignment"
-                ),
-                "has_error": None,
-                "updateHasErrorValueInParent(id, value)": Statement(
-                    """{
-                        const field_item = form_fields.find(field => field.id === id);
-                        if (field_item) {
-                            field_item.has_error = value;
-                        }
-                    }""",
+                "formErrors": {},
+                "hasFormErrors": False,
+                "setFieldError(id, hasError)": Statement(
+                    "{ this.formErrors[id] = hasError; this.hasFormErrors = Object.values(this.formErrors).some(Boolean); }",
                     seq_type="definition",
                 ),
             },
             directive="x-data",
         )
-        base_x_effect_attribute = AlpineJSData(
-            data={
-                "update_has_error_value_for_form_field": Statement(
-                    "updateHasErrorValueInParent(field_id, has_error)",
-                    seq_type="instance",
-                )
-            },
-            directive="x-effect",
-        )
-        base_x_init_attribute = AlpineJSData(
-            data={
-                "append_to_form_fields_array": Statement(
-                    "form_fields.push({ id: field_id, has_error: has_error })",
-                    seq_type="instance",
-                )
-            },
-            directive="x-init",
-        )
         x_data_attribute = attributes.pop("x_data", None)
-        x_effect_attribute = attributes.pop("x_effect", None)
-        x_init_attribute = attributes.pop("x_init", None)
 
         super().__init__(
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
-            x_effect=alpine_js_data_merge(base_x_effect_attribute, x_effect_attribute),
-            x_init=alpine_js_data_merge(base_x_init_attribute, x_init_attribute),
-            data_slot="form-field",
             **attributes,
         )
 
 
-class FormItem(Div):
-    def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_class_attribute = "grid gap-2"
+class FormField(Field):
+    def __init__(
+        self,
+        orientation: Literal["vertical", "horizontal"] | None = "vertical",
+        disabled: bool = False,
+        **attributes: Unpack[DivAttributes],
+    ):
         base_x_data_attribute = AlpineJSData(
             data={
-                "has_error": None,
+                "has_error": False,
+                "is_touched": False,
                 "error_message": "",
-                "form_fields": [],
-                "updateHasErrorValueInParent(value)": Statement(
-                    "{ has_error = value; }",
-                    seq_type="definition",
-                ),
-                "updateErrorMessageValueInParent(value)": Statement(
-                    "{ error_message = value; }",
+                "init()": Statement(
+                    "{ this.$watch('has_error', value => { if (typeof setFieldError === 'function') setFieldError(this.$id('form-field'), value) }) }",
                     seq_type="definition",
                 ),
             },
             directive="x-data",
         )
-        base_x_init_attribute = AlpineJSData(
-            data={
-                "update_has_error_value_for_form_field": Statement(
-                    """
-                    Alpine.effect(() => {
-                        if (form_fields.length > 0) {
-                            const form_fields_has_error = form_fields.some((field) => field["has_error"] === true);
-                            if (form_fields_has_error) {
-                                has_error = form_fields_has_error;
-                                error_message = "Invalid Value";
-                            } else {
-                                has_error = false;
-                                error_message = null;
-                            }
-                        }
-                    })
-
-                    Alpine.effect(() => {
-                        updateHasErrorValueInParent(has_error);
-                        updateErrorMessageValueInParent(error_message);
-                    })
-                    """,
-                    seq_type="instance",
-                )
-            },
-            directive="x-init",
-        )
-        class_attribute = attributes.pop("_class", "")
         x_data_attribute = attributes.pop("x_data", None)
-        x_init_attribute = attributes.pop("x_init", None)
+
+        super().__init__(
+            orientation=orientation,
+            invalid=None,
+            disabled=disabled,
+            x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
+            x_id="['form-field', 'field']",
+            **{":data-invalid": "has_error && is_touched"},
+            **attributes,
+        )
+
+
+class FormLabel(FieldLabel):
+    def __init__(self, **attributes: Unpack[LabelAttributes]):
+        base_class_attribute = "data-[error=true]:text-destructive"
+        class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
-            x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
-            x_init=alpine_js_data_merge(base_x_init_attribute, x_init_attribute),
-            x_id="['form-description', 'form-item-id', 'form-message']",
-            data_slot="form-item",
+            **{":data-error": "has_error && is_touched"},
             **attributes,
         )
 
 
-class FormLabel(Label):
-    def __init__(self, **attributes: Unpack[PyLabelAttributes]):
-        data_error_class_attribute = "data-[error=true]:text-destructive"
-        class_attribute = attributes.pop("_class", "")
-
-        super().__init__(
-            _class=tw_merge(data_error_class_attribute, class_attribute),
-            data_slot="form-label",
-            **{
-                ":data-error": "has_error",
-                ":for": Statement(content="$id('form-item-id')", seq_type="assignment"),
-            },
-            **attributes,
-        )
+class FormDescription(FieldDescription):
+    pass
 
 
 class FormControl(Div):
     def __init__(
-        self, hook_form_item: AlpineHookForm | None, **attributes: Unpack[DivAttributes]
+        self,
+        hook_form_item: AlpineHookForm | None = None,
+        **attributes: Unpack[DivAttributes],
     ):
         self.hook_form_item = hook_form_item
+
         base_x_data_attribute = AlpineJSData(
             data={
-                "runValidation(value, { rules = [], constraints = {} } = {})": Statement(
-                    """{
-                        const constraintChecker = (value, constraints) => {
-                            let check_failed = false;
-                            let message = null;
+                "runValidation(value, rules =[], constraints = {}, isRequired = false)": Statement(
+                    r"""{
+                        const isEmpty = value === undefined || value === null || value === '' || value === false;
+                        if (isRequired && isEmpty) {
+                            this.has_error = true;
+                            this.error_message = "This field is required.";
+                            return;
+                        }
 
-                            for (const type in constraints) {
-                                const constraint = constraints[type];
+                        if (!isRequired && isEmpty) {
+                            this.has_error = false;
+                            this.error_message = "";
+                            return;
+                        }
 
-                                switch (type) {
-                                    case 'min_length':
-                                        if (value && value.length < constraint.value) {
-                                            check_failed = true;
-                                            message = constraint.message || `Must be at least ${constraint.value} characters.`;
-                                        }
-                                        break;
-                                    case 'max_length':
-                                        if (value && value.length > constraint.value) {
-                                            check_failed = true;
-                                            message = constraint.message || `Must be at most ${constraint.value} characters.`;
-                                        }
-                                        break;
-                                    // # TODO: Add other supported cases
-                                }
+                        for (const [type, constraint] of Object.entries(constraints)) {
+                            if (type === 'min_length' && value && value.length < constraint.value) {
+                                this.has_error = true;
+                                this.error_message = constraint.message || `Must be at least ${constraint.value} characters.`;
+                                return;
                             }
-
-                            if (check_failed) {
-                                return { failed: true, message: message }
-                            } else {
-                                return { failed: false, message: null }
+                            if (type === 'max_length' && value && value.length > constraint.value) {
+                                this.has_error = true;
+                                this.error_message = constraint.message || `Must be at most ${constraint.value} characters.`;
+                                return;
+                            }
+                        }
+                        for (const rule of rules) {
+                            if ((rule.test instanceof RegExp && !rule.test.test(value)) || (typeof rule.test === 'function' && !rule.test(value))) {
+                                this.has_error = true;
+                                this.error_message = rule.message || "Invalid value.";
+                                return;
                             }
                         }
 
-                        const ruleChecker = (value, rules) => {
-                            let check_failed = false;
-                            let message = null;
-
-                            for (const rule of rules) {
-                                if (rule.test instanceof RegExp) {
-                                    if (rule.test.test(value) === false) {
-                                        check_failed = true;
-                                        message = rule.message;
-                                        break;
-                                    } else {
-                                        check_failed = false;
-                                        message = null;
-                                    }
-                                } else if (rule.test instanceof Function) {
-                                    if (rule.test(value) === false) {
-                                        check_failed = true;
-                                        message = rule.message;
-                                        break;
-                                    } else {
-                                        check_failed = false;
-                                        message = null;
-                                    }
-                                }
-                            }
-
-                            if (check_failed) {
-                                return { failed: true, message: message }
-                            } else {
-                                return { failed: false, message: null }
-                            }
-                        }
-
-                        if (value) {
-                            const constraintCheck = constraintChecker(value, constraints)
-                            if (constraintCheck.failed) {
-                                has_error = true;
-                                error_message = constraintCheck.message;
-                            } else {
-                                const ruleCheck = ruleChecker(value, rules)
-                                if (ruleCheck.failed) {
-                                    has_error = true;
-                                    error_message = ruleCheck.message;
-                                } else {
-                                    has_error = false;
-                                    error_message = null;
-                                }
-                            }
-                        } else {
-                            has_error = false;
-                            error_message = null;
-                        }
+                        this.has_error = false;
+                        this.error_message = "";
                     }""",
-                    seq_type="definition",
-                ),
-                "getHasError()": Statement(
-                    "{ if (has_error === null) { return false } else { return has_error } }",
                     seq_type="definition",
                 ),
             },
             directive="x-data",
         )
-        class_attribute = attributes.pop("_class", "")
         x_data_attribute = attributes.pop("x_data", None)
 
         super().__init__(
-            _class=class_attribute,
-            data_slot="form-control",
             x_data=alpine_js_data_merge(base_x_data_attribute, x_data_attribute),
             **attributes,
         )
 
-    def __call__(self, *children: Any) -> Self:
-        allowed_child_types = (
-            Checkbox,
-            PasswordInput,
-            PyInput,
-            PyTextarea,
-            RadioGroupItem,
-            Switch,
-        )
+    def __call__(self, *children: tuple) -> Self:
+        if len(children) != 1:
+            raise ValueError(
+                f"`{self.__class__.__qualname__}` must be called with exactly one child."
+            )
 
-        if self.have_children:
-            if len(children) != 1:
-                raise ValueError(
-                    f"`{self.__class__.__qualname__}` must be called with exactly one child, but got {len(children)}."
+        child = children[0]
+
+        allowed_child_types = (Checkbox, PyInput, PyTextarea)
+        if not isinstance(child, allowed_child_types):
+            raise ValueError(
+                f"Invalid child type. Accepted: {', '.join(child_type.__name__ for child_type in allowed_child_types)}."
+            )
+
+        current_attributes = {}
+
+        if isinstance(child, (Checkbox,)):
+            if forwarded_attributes := getattr(child, "forwarded_attributes", None):
+                current_attributes.update(forwarded_attributes)
+            if forwarded_class_attribute := getattr(
+                child, "forwarded_class_attribute", None
+            ):
+                current_attributes["_class"] = forwarded_class_attribute
+        else:
+            current_attributes = dict(child.attributes)
+
+        update_attributes = {}
+
+        update_attributes[":id"] = "fieldId"
+        update_attributes[":aria-describedby"] = (
+            "(has_error && is_touched) ? `${descriptionId} ${alertId}` : descriptionId"
+        )
+        update_attributes[":aria-invalid"] = "has_error && is_touched"
+
+        if self.hook_form_item is not None:
+            hook_form_item = self.hook_form_item
+
+            if hook_form_item.name is not None:
+                update_attributes["name"] = hook_form_item.name
+
+            is_required = "true" if hook_form_item.required else "false"
+            if hook_form_item.required is not None:
+                update_attributes["required"] = hook_form_item.required
+
+            rules_for_validation = []
+            for rule in hook_form_item.validator.get("validation_rules", []):
+                test_value = rule.get("test", "''")
+
+                message_raw = rule.get("message")
+                message = json.dumps(message_raw) if message_raw else "null"
+
+                rules_for_validation.append(
+                    f"{{ test: {test_value}, message: {message} }}"
+                )
+
+            rules_for_validation_serialized = f"[{', '.join(rules_for_validation)}]"
+
+            constraints_for_validation = []
+            for c_type, constraint in hook_form_item.constraints.items():
+                value_raw = constraint.get("value", "")
+                value = json.dumps(value_raw)
+
+                message_raw = constraint.get("message")
+                message = json.dumps(message_raw) if message_raw else "null"
+
+                constraints_for_validation.append(
+                    f"'{c_type}': {{ value: {value}, message: {message} }}"
+                )
+
+            constraints_for_validation_serialized = (
+                f"{{ {', '.join(constraints_for_validation)} }}"
+            )
+
+            trigger = hook_form_item.validator.get(
+                "validation_trigger", AlpineValidationTrigger.ON_BLUR
+            )
+            value_target = hook_form_item.validator.get(
+                "value_to_validate", "$event.target.value"
+            )
+
+            update_attributes[trigger] = (
+                f"is_touched = true; runValidation({value_target}, {rules_for_validation_serialized}, {constraints_for_validation_serialized}, {is_required})"
+            )
+
+            init_value = "$el.type === 'checkbox' ? $el.checked : $el.value"
+            init_statement = f"runValidation({init_value}, {rules_for_validation_serialized}, {constraints_for_validation_serialized}, {is_required})"
+
+            if "x-init" in current_attributes:
+                update_attributes["x-init"] = (
+                    f"{current_attributes['x-init']}; {init_statement}"
+                )
+            elif "x_init" in current_attributes:
+                update_attributes["x_init"] = (
+                    f"{current_attributes['x_init']}; {init_statement}"
                 )
             else:
-                child = children[0]
-                if isinstance(child, allowed_child_types):
-                    current_attributes = {}
-                    update_attributes = {}
+                update_attributes["x-init"] = init_statement
 
-                    if isinstance(
-                        child, Checkbox | PasswordInput | RadioGroupItem | Switch
-                    ):
-                        if forwarded_attributes := getattr(
-                            child, "forwarded_attributes", None
-                        ):
-                            current_attributes.update(forwarded_attributes)
-                        if forwarded_class_attribute := getattr(
-                            child, "forwarded_class_attribute", None
-                        ):
-                            current_attributes["_class"] = forwarded_class_attribute
-                    else:
-                        current_attributes = child.attributes
+            if isinstance(child, (PyInput, PyTextarea)):
+                c_type = hook_form_item.constraints.get("type", {}).get("value")
 
-                    update_attributes[":id"] = Statement(
-                        content="$id('form-item-id')", seq_type="assignment"
-                    )
-                    update_attributes[":aria-describedby"] = (
-                        "getHasError() ? $id('form-description') : `${$id('form-description')} ${$id('form-message')}`"
-                    )
-                    update_attributes[":aria-invalid"] = "getHasError()"
+                if c_type == "text":
+                    if "max_length" in hook_form_item.constraints:
+                        update_attributes["maxlength"] = hook_form_item.constraints[
+                            "max_length"
+                        ]["value"]
+                    if "min_length" in hook_form_item.constraints:
+                        update_attributes["minlength"] = hook_form_item.constraints[
+                            "min_length"
+                        ]["value"]
 
-                    if self.hook_form_item is not None:
-                        if self.hook_form_item.name is not None:
-                            update_attributes["name"] = self.hook_form_item.name
+                elif c_type == "number" and isinstance(child, PyInput):
+                    update_attributes["type"] = "number"
+                    for key in ["max", "min", "step"]:
+                        if key in hook_form_item.constraints:
+                            update_attributes[key] = hook_form_item.constraints[key][
+                                "value"
+                            ]
 
-                        if self.hook_form_item.required is not None:
-                            update_attributes["required"] = self.hook_form_item.required
+        combined_attributes = current_attributes | update_attributes
+        child.__init__(**combined_attributes)
+        self.children.append(child)
 
-                        validation_config = AlpineJSData(
-                            data={
-                                "rules": Statement(
-                                    f"""[{
-                                        ",".join(
-                                            [
-                                                "{"
-                                                f'''test: {rule.get("test", "''")},'''
-                                                f'''message: {f'"{rule["message"]}"' if rule.get("message") else "null"}'''
-                                                "}"
-                                                for rule in self.hook_form_item.validator.get(
-                                                    "validation_rules", []
-                                                )
-                                            ]
-                                        )
-                                    }]""",
-                                    seq_type="assignment",
-                                ),
-                                "constraints": Statement(
-                                    f"""{{ {
-                                        ",".join(
-                                            [
-                                                f"{constraint_type}: "
-                                                "{"
-                                                f'''value: {constraint.get("value", "''")},'''
-                                                f'''message: {f"'{constraint['message']}'" if constraint.get("message") else "null"}'''
-                                                "}"
-                                                for constraint_type, constraint in self.hook_form_item.constraints.items()
-                                            ]
-                                        )
-                                    } }}""",
-                                    seq_type="assignment",
-                                ),
-                            },
-                            directive="x-data",
-                        )
-
-                        update_attributes[
-                            self.hook_form_item.validator["validation_trigger"]
-                        ] = f"runValidation({
-                            self.hook_form_item.validator.get(
-                                'value_to_validate', '$event.target.value'
-                            )
-                        }, {validation_config})"
-
-                        if isinstance(child, PyInput):
-                            if self.hook_form_item.constraints.get("type") == "text":
-                                update_attributes["type"] = "text"
-                                update_attributes["maxlength"] = (
-                                    self.hook_form_item.constraints.get("max_length")
-                                )
-                                update_attributes["minlength"] = (
-                                    self.hook_form_item.constraints.get("min_length")
-                                )
-                            elif (
-                                self.hook_form_item.constraints.get("type") == "number"
-                            ):
-                                update_attributes["type"] = "number"
-                                update_attributes["max"] = (
-                                    self.hook_form_item.constraints.get("max")
-                                )
-                                update_attributes["min"] = (
-                                    self.hook_form_item.constraints.get("min")
-                                )
-                                update_attributes["step"] = (
-                                    self.hook_form_item.constraints.get("step")
-                                )
-
-                        if isinstance(child, PyTextarea):
-                            if self.hook_form_item.constraints.get("type") == "text":
-                                update_attributes["maxlength"] = (
-                                    self.hook_form_item.constraints.get("max_length")
-                                )
-                                update_attributes["minlength"] = (
-                                    self.hook_form_item.constraints.get("min_length")
-                                )
-
-                    combined_attributes = current_attributes | update_attributes
-                    child.__init__(**combined_attributes)
-                    self.children.append(child)
-                else:
-                    raise ValueError(
-                        f"Invalid child type found. `{self.__class__.__qualname__}` can only have {', '.join([type(allowed_type).__class__.__qualname__ for allowed_type in allowed_child_types])}."
-                    )
-        else:
-            warnings.warn(
-                f"Trying to add child to a non-child element: {self.__class__.__qualname__}",
-                UserWarning,
-                stacklevel=2,
-            )
         return self
 
 
-class FormDescription(P):
-    def __init__(self, **attributes: Unpack[PAttributes]):
-        base_class_attribute = "text-muted-foreground text-sm"
-        class_attribute = attributes.pop("_class", "")
-
+class FormMessage(FieldAlert):
+    def __init__(self, **attributes: Unpack[DivAttributes]):
         super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="form-description",
-            **{
-                ":id": Statement(
-                    content="$id('form-description')", seq_type="assignment"
-                )
-            },
-            **attributes,
-        )
-
-
-class FormMessage(P):
-    def __init__(self, **attributes: Unpack[PAttributes]):
-        base_class_attribute = "text-destructive text-sm"
-        class_attribute = attributes.pop("_class", "")
-
-        super().__init__(
-            _class=tw_merge(base_class_attribute, class_attribute),
-            data_slot="form-message",
-            x_show="has_error",
+            x_show="has_error && is_touched",
+            x_cloak=True,
             x_text="error_message",
-            **{":id": Statement(content="$id('form-message')", seq_type="assignment")},
             **attributes,
         )
 
-    def __call__(self, *_children: tuple) -> Self:
+    def __call__(self, *children: tuple) -> Self:
         warnings.warn(
             f"Trying to add child to a non-child element: {self.__class__.__qualname__}",
             UserWarning,
             stacklevel=2,
         )
-
         return self
