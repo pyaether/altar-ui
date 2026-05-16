@@ -120,6 +120,7 @@ class Field(Div):
             role="group",
             data_invalid="true" if invalid else "false",
             data_disabled="true" if disabled else "false",
+            **attributes,
         )
 
 

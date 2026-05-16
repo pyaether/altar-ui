@@ -26,13 +26,20 @@ except ImportError:
 
 
 class Textarea(PyTextarea):
-    def __init__(self, **attributes: Unpack[PyTextareaAttributes]):
+    def __init__(
+        self,
+        default_value: str | None = None,
+        **attributes: Unpack[PyTextareaAttributes],
+    ):
         base_class_attribute = "field-sizing-content outline-none transition-[color,box-shadow] rounded-md border-input shadow-xs border min-h-16 text-base flex px-3 bg-transparent py-2 w-full md:text-sm dark:bg-input/30 aria-invalid:border-destructive aria-invalid:ring-destructive/20 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50 disabled:cursor-not-allowed placeholder:text-muted-foreground dark:aria-invalid:ring-destructive/40"
         class_attribute = attributes.pop("_class", "")
 
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute), **attributes
         )
+
+        if default_value is not None:
+            self.children.append(default_value)
 
     def __call__(self, *_children: tuple) -> Self:
         warnings.warn(

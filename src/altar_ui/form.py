@@ -55,6 +55,10 @@ class Form(PyForm):
                     "{ this.formErrors[id] = hasError; this.hasFormErrors = Object.values(this.formErrors).some(Boolean); }",
                     seq_type="definition",
                 ),
+                "deleteFieldError(id)": Statement(
+                    "{ delete this.formErrors[id]; this.hasFormErrors = Object.values(this.formErrors).some(Boolean); }",
+                    seq_type="definition",
+                ),
             },
             directive="x-data",
         )
@@ -258,19 +262,23 @@ class FormControl(Div):
                 f"is_touched = true; runValidation({value_target}, {rules_for_validation_serialized}, {constraints_for_validation_serialized}, {is_required})"
             )
 
-            init_value = "$el.type === 'checkbox' ? $el.checked : $el.value"
+            init_value = (
+                value_target
+                if value_target != "$event.target.value"
+                else "$el.type === 'checkbox' ? $el.checked : $el.value"
+            )
             init_statement = f"runValidation({init_value}, {rules_for_validation_serialized}, {constraints_for_validation_serialized}, {is_required})"
 
             if "x-init" in current_attributes:
                 update_attributes["x-init"] = (
-                    f"{current_attributes['x-init']}; {init_statement}"
+                    f"{current_attributes['x-init']}; $nextTick(() => {{ {init_statement} }})"
                 )
             elif "x_init" in current_attributes:
                 update_attributes["x_init"] = (
-                    f"{current_attributes['x_init']}; {init_statement}"
+                    f"{current_attributes['x_init']}; $nextTick(() => {{ {init_statement} }})"
                 )
             else:
-                update_attributes["x-init"] = init_statement
+                update_attributes["x-init"] = f"$nextTick(() => {{ {init_statement} }})"
 
             if isinstance(child, (PyInput, PyTextarea)):
                 c_type = hook_form_item.constraints.get("type", {}).get("value")
@@ -294,7 +302,16 @@ class FormControl(Div):
                             ]
 
         combined_attributes = current_attributes | update_attributes
+
+        grandchildren = None
+        if child.have_children and child.children:
+            grandchildren = child.children.copy()
+
         child.__init__(**combined_attributes)
+
+        if grandchildren:
+            child.children = grandchildren
+
         self.children.append(child)
 
         return self

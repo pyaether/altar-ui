@@ -271,7 +271,7 @@ class ToastContent(Div):
         )
 
         if category is not None:
-            toast_category_icon = ToastCategoryIcon[category]
+            toast_category_icon = ToastCategoryIcon[category].value
             self.children.append(toast_category_icon)
 
 
