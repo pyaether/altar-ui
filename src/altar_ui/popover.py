@@ -16,7 +16,12 @@ Requires:
 from enum import StrEnum
 from typing import Literal
 
-from aether.plugins.alpinejs import AlpineJSData, Statement, alpine_js_data_merge
+from aether.plugins.alpinejs import (
+    AlpineJSData,
+    Statement,
+    alpine_js_data_merge,
+    alpine_js_x_on_event_merge,
+)
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import ButtonAttributes as PyButtonAttributes
 from aether.tags.html import Div, DivAttributes
@@ -82,12 +87,20 @@ class PopoverTrigger(Button):
         size: Literal["default", "sm", "lg", "icon", "icon_sm", "icon_lg"] = "default",
         **attributes: Unpack[PyButtonAttributes],
     ):
+        base_x_on_attributes = {"@click": "togglePopoverState()"}
+        x_on_attributes = {
+            key: attributes.pop(key)
+            for key in list(attributes.keys())
+            if key.startswith(("@", "x-on:"))
+        }
+
         super().__init__(
             type="button",
             variant=variant,
             size=size,
             x_ref="trigger",
-            **{"@click": "togglePopoverState()", ":aria-expanded": "isOpen"},
+            **{":aria-expanded": "isOpen"},
+            **alpine_js_x_on_event_merge(base_x_on_attributes, x_on_attributes),
             **attributes,
         )
 

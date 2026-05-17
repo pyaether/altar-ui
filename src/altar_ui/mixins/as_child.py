@@ -2,7 +2,7 @@ from collections.abc import Generator
 
 from aether import BaseWebElement
 from aether.base import _render_element
-from aether.plugins.alpinejs import alpine_js_data_merge
+from aether.plugins.alpinejs import alpine_js_data_merge, alpine_js_x_on_event_merge
 from aether.plugins.tailwindcss import tw_merge
 
 
@@ -58,14 +58,17 @@ class AsChildMixin:
         c_style = str(current_attributes.pop("style", "")).strip("; ")
         merged_style = f"{p_style}; {c_style}".strip("; ")
 
-        merged_events = {}
-        for key in list(passthrough_attributes.keys()):
-            if (
-                key.startswith("@") or key.startswith("x-on:")
-            ) and key in current_attributes:
-                p_event = str(passthrough_attributes.pop(key)).strip(" ;").strip(";")
-                c_event = str(current_attributes.pop(key)).strip(" ;")
-                merged_events[key] = f"{p_event}; {c_event}"
+        p_events = {
+            key: passthrough_attributes.pop(key)
+            for key in list(passthrough_attributes.keys())
+            if key.startswith(("@", "x-on:"))
+        }
+        c_events = {
+            key: current_attributes.pop(key)
+            for key in list(current_attributes.keys())
+            if key.startswith(("@", "x-on:"))
+        }
+        merged_events = alpine_js_x_on_event_merge(p_events, c_events)
 
         combined_attributes = (
             passthrough_attributes | current_attributes | merged_events

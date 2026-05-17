@@ -21,7 +21,12 @@ from collections.abc import Generator, Iterable
 from typing import Self
 
 from aether import BaseWebElement
-from aether.plugins.alpinejs import AlpineJSData, Statement, alpine_js_data_merge
+from aether.plugins.alpinejs import (
+    AlpineJSData,
+    Statement,
+    alpine_js_data_merge,
+    alpine_js_x_on_event_merge,
+)
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import Button as PyButton
 from aether.tags.html import ButtonAttributes as PyButtonAttributes
@@ -111,6 +116,16 @@ class TabsTrigger(AsChildMixin, PyButton):
 
         safe_value = value.replace(" ", "-")
 
+        base_x_on_attributes = {
+            "@click": f"selectedTab = '{value}'",
+            "@focus": f"selectedTab = '{value}'",
+        }
+        x_on_attributes = {
+            key: attributes.pop(key)
+            for key in list(attributes.keys())
+            if key.startswith(("@", "x-on:"))
+        }
+
         super().__init__(
             _class=tw_merge(base_class_attribute, class_attribute),
             value=value,
@@ -119,11 +134,10 @@ class TabsTrigger(AsChildMixin, PyButton):
             **{
                 ":id": f"`${{tabGroupId}}-trigger-{safe_value}`",
                 ":aria-controls": f"`${{tabGroupId}}-content-{safe_value}`",
-                "@click": f"selectedTab = '{value}'",
                 ":aria-selected": f"selectedTab === '{value}'",
                 ":tabindex": f"selectedTab === '{value}' ? '0' : '-1'",
-                "@focus": f"selectedTab = '{value}'",
             },
+            **alpine_js_x_on_event_merge(base_x_on_attributes, x_on_attributes),
             **attributes,
         )
 

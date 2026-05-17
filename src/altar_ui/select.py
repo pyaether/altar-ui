@@ -25,7 +25,12 @@ Requires:
 import warnings
 from typing import Literal, Self
 
-from aether.plugins.alpinejs import AlpineJSData, Statement, alpine_js_data_merge
+from aether.plugins.alpinejs import (
+    AlpineHookForm,
+    AlpineJSData,
+    Statement,
+    alpine_js_data_merge,
+)
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import (
     H3,
@@ -45,6 +50,7 @@ from aether.tags.html import ButtonAttributes as PyButtonAttributes
 from altar_icons import CheckIcon, ChevronsUpDownIcon, SearchIcon
 
 from .badge import Badge
+from .form import FormControl
 from .popover import Popover, PopoverContent, PopoverTrigger
 
 try:
@@ -61,6 +67,7 @@ class Select(Popover):
         multiple_select: bool = False,
         placeholder: str = "Select an option...",
         close_on_select: bool = False,
+        hook_form_item: AlpineHookForm | None = None,
         **attributes: Unpack[DivAttributes],
     ):
         if default_value is None:
@@ -75,6 +82,7 @@ class Select(Popover):
             default_value = [default_value]
 
         self.forwarded_name_attribute = name
+        self.forwarded_hook_form_item = hook_form_item
 
         base_x_data_attribute = AlpineJSData(
             data={
@@ -232,7 +240,7 @@ class Select(Popover):
     def __call__(self, *children: tuple) -> Self:
         super().__call__(*children)
 
-        if self.forwarded_name_attribute:
+        if self.forwarded_hook_form_item or self.forwarded_name_attribute:
             self.children.append(
                 Input(
                     type="hidden",
@@ -240,6 +248,15 @@ class Select(Popover):
                     **{
                         ":value": "isMultiple ? JSON.stringify(currentValue) : currentValue"
                     },
+                )
+                if self.forwarded_name_attribute
+                else FormControl(hook_form_item=self.forwarded_hook_form_item)(
+                    Input(
+                        type="hidden",
+                        **{
+                            ":value": "isMultiple ? JSON.stringify(currentValue) : currentValue"
+                        },
+                    )
                 )
             )
 

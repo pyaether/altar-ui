@@ -22,7 +22,11 @@ from collections.abc import Generator, Iterable
 from typing import Literal, Self
 
 from aether import BaseWebElement
-from aether.plugins.alpinejs import AlpineJSData, alpine_js_data_merge
+from aether.plugins.alpinejs import (
+    AlpineJSData,
+    alpine_js_data_merge,
+    alpine_js_x_on_event_merge,
+)
 from aether.plugins.tailwindcss import tw_merge
 from aether.tags.html import (
     H2,
@@ -51,7 +55,9 @@ except ImportError:
 
 class Dialog(Div):
     def __init__(self, **attributes: Unpack[DivAttributes]):
-        base_x_data_attribute = AlpineJSData(data={"modalIsOpen": False})
+        base_x_data_attribute = AlpineJSData(
+            data={"modalIsOpen": False}, directive="x-data"
+        )
         x_data_attribute = attributes.pop("x_data", None)
 
         super().__init__(
@@ -69,11 +75,20 @@ class DialogTrigger(Button):
         size: Literal["default", "sm", "lg", "icon", "icon_sm", "icon_lg"] = "default",
         **attributes: Unpack[PyButtonAttributes],
     ):
+        base_x_on_attributes = {
+            "@click": "modalIsOpen = true; $refs.dialog.showModal()"
+        }
+        x_on_attributes = {
+            key: attributes.pop(key)
+            for key in list(attributes.keys())
+            if key.startswith(("@", "x-on:"))
+        }
+
         super().__init__(
             type="button",
             variant=variant,
             size=size,
-            **{"@click": "modalIsOpen = true; $refs.dialog.showModal()"},
+            **alpine_js_x_on_event_merge(base_x_on_attributes, x_on_attributes),
             **attributes,
         )
 
@@ -87,14 +102,35 @@ class DialogClose(PyButton):
             type="button",
             _class=tw_merge(base_class_attribute, class_attribute),
             **{
-                "@click": "$dispatch('reset-form-data'); modalIsOpen = false; $refs.dialog.close()"
+                "@click": "$dispatch('reset-data'); modalIsOpen = false; $refs.dialog.close()"
             },
             **attributes,
         )
 
 
 class DialogContent(PyDialog):
-    def __init__(self, **attributes: Unpack[PyDialogAttributes]):
+    def __init__(
+        self, as_alert: bool = False, **attributes: Unpack[PyDialogAttributes]
+    ):
+        self.as_alert = as_alert
+
+        base_x_on_attributes = {
+            "@click": None
+            if self.as_alert
+            else "$event.target === $el && (modalIsOpen = false, $el.close())",
+            "@close": "modalIsOpen = false",
+        }
+        base_x_init_attribute = AlpineJSData(data={}, directive="x-init")
+
+        x_init_attribute = attributes.pop("x_init", None)
+        x_on_attributes = {
+            key: attributes.pop(key)
+            for key in list(attributes.keys())
+            if key.startswith(("@", "x-on:"))
+        }
+
+        id_attribute = attributes.pop("id", None)
+
         base_class_attribute = "transition-all transition-discrete opacity-0 inset-y-0 open:opacity-100 backdrop:transition-all backdrop:transition-discrete backdrop:opacity-0 backdrop:bg-black/50 [&:popover-open]:opacity-100 starting:open:opacity-0 open:backdrop:opacity-100 starting:[&:popover-open]:opacity-0 [&:popover-open]:backdrop:opacity-100 starting:open:backdrop:opacity-0 starting:[&:popover-open]:backdrop:opacity-0"
 
         self.forwarded_base_class_attribute = "transition-all flex-col rounded-lg shadow-lg scale-95 border max-w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] left-[50%] fixed gap-4 top-[50%] flex bg-background w-full z-50 p-6 -translate-x-1/2 -translate-y-1/2 sm:max-w-lg [[open]>_&]:scale-100 [[:popover-open]>_&]:scale-100 starting:[[open]>_&]:scale-95 starting:[[:popover-open]>_&]:scale-95"
@@ -102,13 +138,12 @@ class DialogContent(PyDialog):
         self.forwarded_attributes = attributes
 
         super().__init__(
+            x_init=alpine_js_data_merge(base_x_init_attribute, x_init_attribute),
             x_ref="dialog",
             _class=base_class_attribute,
-            **{
-                "x-trap.noscroll": "modalIsOpen",
-                "@click": "$event.target === $el && (modalIsOpen = false, $el.close())",
-                "@close": "modalIsOpen = false",
-            },
+            **alpine_js_x_on_event_merge(base_x_on_attributes, x_on_attributes),
+            **{"x-trap.noscroll": "modalIsOpen"},
+            **{"id": id_attribute} if id_attribute is not None else {},
         )
 
     def __call__(self, *children: tuple) -> Self:
@@ -135,7 +170,9 @@ class DialogContent(PyDialog):
                 **self.forwarded_attributes,
             )(
                 *forwarded_children,
-                Div(_class="absolute right-4 top-4")(
+                None
+                if self.as_alert
+                else Div(_class="absolute right-4 top-4")(
                     DialogClose()(XIcon(), Span(_class="sr-only")("Close"))
                 ),
             )
@@ -187,9 +224,17 @@ class DialogFooter(Div):
                     # If a child has a `@click.close` attribute, close the dialog when it's clicked
                     should_close = child.attributes.pop("@click.close", False)
                     if should_close:
-                        child.attributes["@click"] = (
-                            "$dispatch('reset-form-data'); modalIsOpen = false; $refs.dialog.close()"
-                        )
+                        base_x_on_click_attributes = {
+                            "@click": "modalIsOpen = false; $refs.dialog.close()"
+                        }
+                        x_on_click_attributes = {
+                            key: child.attributes.pop(key)
+                            for key in list(child.attributes.keys())
+                            if key.startswith(("@click", "x-on:click"))
+                        }
+                        child.attributes["@click"] = alpine_js_x_on_event_merge(
+                            base_x_on_click_attributes, x_on_click_attributes
+                        )["@click"]
                 self.children.append(child)
             elif isinstance(child, Generator):
                 self.children.extend(list(child))
