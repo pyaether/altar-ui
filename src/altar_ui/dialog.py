@@ -115,7 +115,7 @@ class DialogContent(PyDialog):
         self.as_alert = as_alert
 
         base_x_on_attributes = {
-            "@click": None
+            "@click": ""
             if self.as_alert
             else "$event.target === $el && (modalIsOpen = false, $el.close())",
             "@close": "modalIsOpen = false",

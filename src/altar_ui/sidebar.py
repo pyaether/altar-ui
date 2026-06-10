@@ -60,7 +60,7 @@ from aether.tags.html import (
 )
 from aether.tags.html import Button as PyButton
 from aether.tags.html import ButtonAttributes as PyButtonAttributes
-from altar_icons import ChevronDownIcon, PanelLeftIcon
+from altar_icons import ChevronDownIcon, PanelLeftIcon, PanelRightIcon
 
 from .button import Button
 from .mixins import AsChildMixin
@@ -390,6 +390,7 @@ class SidebarToggle(Button):
     def __init__(
         self,
         target_id: str | None = None,
+        position: Literal["left", "right"] = "left",
         action: Literal["open", "close"] | None = None,
         **attributes: Unpack[PyButtonAttributes],
     ):
@@ -407,6 +408,12 @@ class SidebarToggle(Button):
         else:
             dispatch = "document.dispatchEvent(new CustomEvent('altar:sidebar'))"
 
+        match position:
+            case "left":
+                panel_icon = PanelLeftIcon()
+            case "right":
+                panel_icon = PanelRightIcon()
+
         super().__init__(
             type="button",
             variant="ghost",
@@ -415,4 +422,4 @@ class SidebarToggle(Button):
             **attributes,
         )
 
-        self.children.append(PanelLeftIcon())
+        self.children.append(panel_icon)
