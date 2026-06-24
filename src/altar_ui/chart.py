@@ -75,17 +75,49 @@ class Chart(Div):
                     }""",
                     seq_type="definition",
                 ),
+                "callbackRegistry": Statement("{ }", seq_type="assignment"),
+                "__resolveCallback(value)": Statement(
+                    "{ return this.callbackRegistry[value] || value;  }",
+                    seq_type="definition",
+                ),
                 "__resolveConfig(config)": Statement(
                     r"""{
+                        if (typeof config === 'string') {
+                            if (config.includes('var(--')) {
+                                return this.__resolveColor(config);
+                            }
+                            return config;
+                        }
+
                         if (typeof config !== 'object' || config === null) return config;
 
                         if (Array.isArray(config)) return config.map(item => this.__resolveConfig(item));
 
                         return Object.fromEntries(
-                            Object.entries(config).map(([key, value]) => [
-                                key,
-                                typeof value === 'string' && value.includes('var(--') ? this.__resolveColor(value) : (typeof value === 'object' ? this.__resolveConfig(value) : value)
-                            ])
+                            Object.entries(config).flatMap(([key, value]) => {
+                            if (typeof value === 'string' && value.startsWith('ALPINE_CALLBACK_')) {
+                                const resolvedCallback = this.__resolveCallback(value);
+
+                                if (resolvedCallback === value) {
+                                    console.warn(`[Alpine Chart] Missing callback handler for placeholder: "${value}". Skipping key: "${key}".`);
+                                    return [];
+                                }
+
+                                onst alpineCtx = this;
+                                const colorResolvedCallback = function(...args) {
+                                    const result = resolvedCallback.apply(this, args);
+
+                                    if (typeof result === 'string' && result.includes('var(--')) {
+                                        return alpineCtx.__resolveColor(result);
+                                    }
+                                    return result;
+                                };
+
+                                return [[key, colorResolvedCallback]];
+                            }
+
+                                return [[key, this.__resolveConfig(value)]];
+                            })
                         );
                     }""",
                     seq_type="definition",
